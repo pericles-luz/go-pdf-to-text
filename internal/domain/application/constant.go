@@ -1,4 +1,4 @@
-package extract
+package application
 
 import "errors"
 

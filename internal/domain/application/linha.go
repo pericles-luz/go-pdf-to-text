@@ -1,9 +1,10 @@
-package extract
+package application
 
 import (
 	"time"
 
 	"github.com/pericles-luz/go-base/pkg/utils"
+	"github.com/pericles-luz/go-pdf-to-text/internal/extract"
 )
 
 type Linha struct {
@@ -69,7 +70,7 @@ func (l *Linha) TotalDevido() uint64 {
 }
 
 func (l *Linha) SetMesAno(mesAno string) {
-	l.mesAno, _ = time.Parse("01/2006/02", mes[mesAno[0:3]]+"/"+mesAno[4:8]+"/01")
+	l.mesAno, _ = time.Parse("01/2006/02", mes[mesAno[0:3]]+"/19"+mesAno[4:6]+"/01")
 }
 
 func (l *Linha) SetVencimentoBasico(vencimentoBasico string) {
@@ -125,22 +126,22 @@ func (l *Linha) Validate() error {
 	if l.Percentual() == 0 {
 		return ErrPercentualInvalido
 	}
-	if MuitoDiferente(l.ValorDevido(), l.Soma()*l.Percentual()/10000) {
+	if extract.MuitoDiferente(l.ValorDevido(), l.Soma()*l.Percentual()/10000) {
 		return ErrValorDevidoInvalido
 	}
 	if l.IndiceCorrecao() == 0 {
 		return ErrIndiceCorrecaoInvalido
 	}
-	if MuitoDiferente(l.ValorCorrigido(), l.ValorDevido()*l.IndiceCorrecao()/100000000) {
+	if extract.MuitoDiferente(l.ValorCorrigido(), l.ValorDevido()*l.IndiceCorrecao()/100000000) {
 		return ErrValorCorrigidoInvalido
 	}
 	if l.JurosMora() == 0 {
 		return ErrJurosMoraInvalido
 	}
-	if MuitoDiferente(l.ValorJurosMora(), l.ValorCorrigido()*l.JurosMora()/1000000) {
+	if extract.MuitoDiferente(l.ValorJurosMora(), l.ValorCorrigido()*l.JurosMora()/1000000) {
 		return ErrValorJurosMoraInvalido
 	}
-	if MuitoDiferente(l.TotalDevido(), l.ValorCorrigido()+l.ValorJurosMora()) {
+	if extract.MuitoDiferente(l.TotalDevido(), l.ValorCorrigido()+l.ValorJurosMora()) {
 		return ErrTotalDevidoInvalido
 	}
 	return nil

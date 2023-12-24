@@ -1,4 +1,4 @@
-package extract
+package application
 
 import "github.com/pericles-luz/go-base/pkg/utils"
 
