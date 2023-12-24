@@ -3,6 +3,8 @@ package application
 import (
 	"fmt"
 	"time"
+
+	"github.com/pericles-luz/go-base/pkg/utils"
 )
 
 type Calculo struct {
@@ -49,7 +51,7 @@ func (c *Calculo) SetExequente(exequente string) {
 }
 
 func (c *Calculo) SetCpf(cpf string) {
-	c.cpf = cpf
+	c.cpf = utils.CompleteWithZeros(utils.GetOnlyNumbers(cpf), 11)
 }
 
 func (c *Calculo) SetIdUnica(idUnica string) {
@@ -154,7 +156,7 @@ func (c *Calculo) Validate() error {
 	if c.Exequente() == "" {
 		return ErrExequenteInvalido
 	}
-	if c.Cpf() == "" {
+	if !utils.ValidateCPF(c.Cpf()) {
 		return ErrCpfInvalido
 	}
 	if c.IdUnica() == "" {
