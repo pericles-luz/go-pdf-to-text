@@ -73,6 +73,14 @@ func Linha(lines []string, page, line int, calculo *application.Calculo) error {
 		return application.ErrValorJurosMoraNaoEncontrado
 	}
 	linha.SetValorJurosMora(valorJurosMora)
+	totalDevido, err := findTotalDevido(lines, page, line)
+	if err != nil {
+		return err
+	}
+	if totalDevido == "" {
+		return application.ErrTotalDevidoNaoEncontrado
+	}
+	linha.SetTotalDevido(totalDevido)
 	calculo.AddLinha(linha)
 	return nil
 }
@@ -345,7 +353,7 @@ func findValorCorrigido(lines []string, page, count int) (string, error) {
 		}
 		// se achar nova página antes de achar a linha desejada, para de procurar
 		if foundPage > page {
-			return "", application.ErrValorDevidoNaoEncontrado
+			return "", application.ErrValorCorrigidoNaoEncontrado
 		}
 		if value.MatchString(line) {
 			count--
@@ -354,7 +362,7 @@ func findValorCorrigido(lines []string, page, count int) (string, error) {
 			return line, nil
 		}
 	}
-	return "", application.ErrValorDevidoNaoEncontrado
+	return "", application.ErrValorCorrigidoNaoEncontrado
 }
 
 // na página 2, a busca deve ser feita de forma diferente
@@ -376,7 +384,7 @@ func findValorCorrigidoPage2(lines []string, page, count int) (string, error) {
 		}
 		// se achar nova página antes de achar a linha desejada, para de procurar
 		if foundPage > page {
-			return "", application.ErrValorDevidoNaoEncontrado
+			return "", application.ErrValorCorrigidoNaoEncontrado
 		}
 		if value.MatchString(line) {
 			count--
@@ -385,7 +393,7 @@ func findValorCorrigidoPage2(lines []string, page, count int) (string, error) {
 			return line, nil
 		}
 	}
-	return "", application.ErrValorDevidoNaoEncontrado
+	return "", application.ErrValorCorrigidoNaoEncontrado
 }
 
 func findJurosMora(lines []string, page, count int) (string, error) {
@@ -404,7 +412,7 @@ func findJurosMora(lines []string, page, count int) (string, error) {
 		}
 		// se achar nova página antes de achar a linha desejada, para de procurar
 		if foundPage > page {
-			return "", application.ErrIndiceCorrecaoNaoEncontrado
+			return "", application.ErrJurosMoraNaoEncontrado
 		}
 		if value.MatchString(line) {
 			count--
@@ -413,7 +421,7 @@ func findJurosMora(lines []string, page, count int) (string, error) {
 			return line, nil
 		}
 	}
-	return "", application.ErrIndiceCorrecaoNaoEncontrado
+	return "", application.ErrJurosMoraNaoEncontrado
 }
 
 func findValorJurosMora(lines []string, page, count int) (string, error) {
@@ -432,7 +440,7 @@ func findValorJurosMora(lines []string, page, count int) (string, error) {
 		}
 		// se achar nova página antes de achar a linha desejada, para de procurar
 		if foundPage > page {
-			return "", application.ErrIndiceCorrecaoNaoEncontrado
+			return "", application.ErrValorJurosMoraNaoEncontrado
 		}
 		if value.MatchString(line) {
 			count--
@@ -441,5 +449,37 @@ func findValorJurosMora(lines []string, page, count int) (string, error) {
 			return line, nil
 		}
 	}
-	return "", application.ErrIndiceCorrecaoNaoEncontrado
+	return "", application.ErrValorJurosMoraNaoEncontrado
+}
+
+func findTotalDevido(lines []string, page, count int) (string, error) {
+	value := regexp.MustCompile(`\d{1},\d{2}$`)
+	foundPage := 0
+	spaces := 0
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if strings.Contains(line, "TOTAL DEVIDO") {
+			foundPage++
+		}
+		if page > foundPage {
+			continue
+		}
+		// se achar nova página antes de achar a linha desejada, para de procurar
+		if foundPage > page {
+			return "", application.ErrValorJurosMoraNaoEncontrado
+		}
+		if len(line) == 0 {
+			spaces++
+		}
+		if spaces < 2 {
+			continue
+		}
+		if value.MatchString(line) {
+			count--
+		}
+		if count == 0 {
+			return line, nil
+		}
+	}
+	return "", application.ErrValorJurosMoraNaoEncontrado
 }
