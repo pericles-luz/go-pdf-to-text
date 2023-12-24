@@ -51,4 +51,6 @@ var (
 	ErrTotalAposDesagio35NaoEncontrado  = errors.New("total apos desagio 35 nao encontrado")
 	ErrValorCorrigidoTotalNaoEncontrado = errors.New("valor corrigido total nao encontrado")
 	ErrTotalNaoEncontrado               = errors.New("total nao encontrado")
+	ErrMesAnoNaoEncontrado              = errors.New("mes/ano nao encontrado")
+	ErrMesAnoNaoExiste                  = errors.New("mes/ano nao existe")
 )

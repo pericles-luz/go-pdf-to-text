@@ -125,6 +125,16 @@ func (c *Calculo) Tabela() []*Linha {
 	return c.tabela
 }
 
+func (c *Calculo) Linha(mesAno string) *Linha {
+	mesAno = mes[mesAno[0:3]] + "/19" + mesAno[4:6]
+	for _, linha := range c.tabela {
+		if linha.MesAno() == mesAno {
+			return linha
+		}
+	}
+	return nil
+}
+
 func (c *Calculo) Total() *Total {
 	return c.total
 }

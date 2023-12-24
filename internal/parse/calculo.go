@@ -214,3 +214,48 @@ func TotalAposDesagio35(lines []string, calculo *application.Calculo) error {
 	}
 	return application.ErrTotalAposDesagio35NaoEncontrado
 }
+
+func Linha(lines []string, page, line int, calculo *application.Calculo) error {
+	linha := application.NewLinha()
+	mesAno, err := findMesAno(lines, page, line)
+	if err != nil {
+		return err
+	}
+	if mesAno == "" {
+		return application.ErrMesAnoNaoEncontrado
+	}
+	linha.SetMesAno(mesAno)
+	calculo.AddLinha(linha)
+	return nil
+}
+
+func findMesAno(lines []string, page, count int) (string, error) {
+	if page == 0 || count == 0 {
+		return "", application.ErrMesAnoNaoExiste
+	}
+	re := regexp.MustCompile(`^(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)/\d{2}$`)
+	foundPage := 0
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if len(line) == 0 {
+			continue
+		}
+		if line == "Mês/Ano" {
+			foundPage++
+		}
+		if page > foundPage {
+			continue
+		}
+		// se achar nova página antes de achar a linha desejada, para de procurar
+		if foundPage > page {
+			return "", nil
+		}
+		if re.MatchString(line) {
+			count--
+		}
+		if count == 0 {
+			return line, nil
+		}
+	}
+	return "", application.ErrMesAnoNaoEncontrado
+}

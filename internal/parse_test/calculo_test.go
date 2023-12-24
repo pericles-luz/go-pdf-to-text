@@ -60,3 +60,28 @@ func TestCalculoMustFindTotal(t *testing.T) {
 	require.Equal(t, uint64(499564), calculo.Total().ValorJurosMora())
 	require.Equal(t, uint64(882540), calculo.Total().TotalDevido())
 }
+
+func TestCalculoMustFindLinha(t *testing.T) {
+	lines := readOriginFile(t)
+	calculo := application.NewCalculo()
+	err := parse.Linha(lines, 1, 10, calculo)
+	require.NoError(t, err)
+	require.NotNil(t, calculo.Linha("set/96"))
+}
+
+func TestCalculoMustNotFindLinha(t *testing.T) {
+	lines := readOriginFile(t)
+	calculo := application.NewCalculo()
+	err := parse.Linha(lines, 1, 30, calculo)
+	require.EqualError(t, err, application.ErrMesAnoNaoEncontrado.Error())
+	err = parse.Linha(lines, 3, 1, calculo)
+	require.EqualError(t, err, application.ErrMesAnoNaoEncontrado.Error())
+}
+
+func TestCalculoMustFindLinhaOnSecondPage(t *testing.T) {
+	lines := readOriginFile(t)
+	calculo := application.NewCalculo()
+	err := parse.Linha(lines, 2, 3, calculo)
+	require.NoError(t, err)
+	require.NotNil(t, calculo.Linha("mai/98"))
+}

@@ -267,3 +267,10 @@ func TestCalculoMustReturnErrLinhaJaExistente(t *testing.T) {
 	calculo.AddLinha(linha)
 	require.EqualError(t, calculo.AddLinha(linha), application.ErrLinhaJaExistente.Error())
 }
+
+func TestCalculoMustFindLineByMesAno(t *testing.T) {
+	calculo := application.NewCalculo()
+	linha := linha(t)
+	calculo.AddLinha(linha)
+	require.Equal(t, linha, calculo.Linha("fev/97"))
+}
