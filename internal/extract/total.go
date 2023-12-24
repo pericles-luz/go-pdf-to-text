@@ -35,3 +35,16 @@ func (t *Total) SetValorJurosMora(valorJurosMora string) {
 func (t *Total) SetTotalDevido(totalDevido string) {
 	t.totalDevido = uint64(utils.StringToInt(utils.GetOnlyNumbers(totalDevido)))
 }
+
+func (t *Total) Validate() error {
+	if t.ValorCorrigido() == 0 {
+		return ErrValorCorrigidoInvalido
+	}
+	if t.ValorJurosMora() == 0 {
+		return ErrValorJurosMoraInvalido
+	}
+	if t.TotalDevido() != t.ValorCorrigido()+t.ValorJurosMora() {
+		return ErrTotalDevidoInvalido
+	}
+	return nil
+}
