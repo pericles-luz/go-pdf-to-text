@@ -54,4 +54,5 @@ var (
 	ErrMesAnoNaoEncontrado              = errors.New("mes/ano nao encontrado")
 	ErrMesAnoNaoExiste                  = errors.New("mes/ano nao existe")
 	ErrVencimentoBasicoNaoEncontrado    = errors.New("vencimento basico nao encontrado")
+	ErrSomaNaoEncontrada                = errors.New("soma nao encontrada")
 )

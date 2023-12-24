@@ -64,11 +64,12 @@ func TestCalculoMustFindTotal(t *testing.T) {
 func TestCalculoMustFindLinha(t *testing.T) {
 	lines := readOriginFile(t)
 	calculo := application.NewCalculo()
-	err := parse.Linha(lines, 1, 10, calculo)
+	err := parse.Linha(lines, 1, 15, calculo)
 	require.NoError(t, err)
-	line := calculo.Linha("set/96")
+	line := calculo.Linha("fev/97")
 	require.NotNil(t, line)
 	require.Equal(t, uint64(13861), line.VencimentoBasico())
+	require.Equal(t, uint64(18481), line.Soma())
 }
 
 func TestCalculoMustNotFindLinha(t *testing.T) {
@@ -85,5 +86,8 @@ func TestCalculoMustFindLinhaOnSecondPage(t *testing.T) {
 	calculo := application.NewCalculo()
 	err := parse.Linha(lines, 2, 3, calculo)
 	require.NoError(t, err)
-	require.NotNil(t, calculo.Linha("mai/98"))
+	line := calculo.Linha("mai/98")
+	require.NotNil(t, line)
+	require.Equal(t, uint64(14453), line.VencimentoBasico())
+	require.Equal(t, uint64(19271), line.Soma())
 }

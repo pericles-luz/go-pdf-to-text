@@ -233,6 +233,14 @@ func Linha(lines []string, page, line int, calculo *application.Calculo) error {
 		return application.ErrVencimentoBasicoNaoEncontrado
 	}
 	linha.SetVencimentoBasico(vencimentoBasico)
+	soma, err := findSoma(lines, page, line)
+	if err != nil {
+		return err
+	}
+	if soma == "" {
+		return application.ErrSomaNaoEncontrada
+	}
+	linha.SetSoma(soma)
 	calculo.AddLinha(linha)
 	return nil
 }
@@ -298,6 +306,7 @@ func findVencimentoBasico(lines []string, page, count int) (string, error) {
 		}
 		if line == "VENCIMENTO BASICO" {
 			foundPage++
+			foundCount = 0
 			continue
 		}
 		if value.MatchString(line) {
@@ -308,4 +317,89 @@ func findVencimentoBasico(lines []string, page, count int) (string, error) {
 		}
 	}
 	return "", application.ErrVencimentoBasicoNaoEncontrado
+}
+
+func findSoma(lines []string, page, count int) (string, error) {
+	if page == 0 || count == 0 {
+		return "", application.ErrSomaNaoEncontrada
+	}
+	foundPage := 0
+	foundCount := 0
+	value := regexp.MustCompile(`,\d{2}$`)
+	for i := 0; i < len(lines); i++ {
+		if foundPage > page {
+			return "", application.ErrSomaNaoEncontrada
+		}
+		line := strings.TrimSpace(lines[i])
+		if strings.Contains(line, "%") {
+			continue
+		}
+		if len(line) == 0 && page != foundPage {
+			continue
+		}
+		if len(line) == 0 && foundCount > 0 {
+			return "", application.ErrSomaNaoEncontrada
+		}
+		if line == "Soma" {
+			foundPage++
+			foundCount = 0
+			if foundPage == page && page == 2 {
+				return findSomaPage2(lines, i, count)
+			}
+
+			continue
+		}
+		if page != foundPage {
+			continue
+		}
+		if value.MatchString(line) {
+			foundCount++
+		}
+		if foundCount == count {
+			return line, nil
+		}
+	}
+	return "", application.ErrSomaNaoEncontrada
+}
+
+// quando a soma etiver na página 2, a busca deve ser feita de forma diferente
+// é preciso localizar a linha com o texto VALOR DEVIDO e depois voltar até a
+// segunda linha vazia. A partir daí, deve-se contar as linhas com valores
+// até encontrar a linha desejada
+func findSomaPage2(lines []string, index, count int) (string, error) {
+	foundCount := 0
+	foundText := 0
+	value := regexp.MustCompile(`,\d{2}$`)
+	for i := index; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if line == "VALOR DEVIDO" {
+			foundText = i
+			break
+		}
+	}
+	if foundText == 0 {
+		return "", application.ErrSomaNaoEncontrada
+	}
+	spaces := 0
+	start := 0
+	for i := foundText; i > index; i-- {
+		line := strings.TrimSpace(lines[i])
+		if len(line) == 0 {
+			spaces++
+		}
+		if spaces == 2 {
+			start = i + 1
+			break
+		}
+	}
+	for i := start; i < foundText; i++ {
+		line := strings.TrimSpace(lines[i])
+		if value.MatchString(line) {
+			foundCount++
+		}
+		if foundCount == count {
+			return line, nil
+		}
+	}
+	return "", application.ErrSomaNaoEncontrada
 }
