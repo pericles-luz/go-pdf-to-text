@@ -65,6 +65,14 @@ func Linha(lines []string, page, line int, calculo *application.Calculo) error {
 		return application.ErrJurosMoraNaoEncontrado
 	}
 	linha.SetJurosMora(jurosMora)
+	valorJurosMora, err := findValorJurosMora(lines, page, line)
+	if err != nil {
+		return err
+	}
+	if valorJurosMora == "" {
+		return application.ErrValorJurosMoraNaoEncontrado
+	}
+	linha.SetValorJurosMora(valorJurosMora)
 	calculo.AddLinha(linha)
 	return nil
 }
@@ -389,6 +397,34 @@ func findJurosMora(lines []string, page, count int) (string, error) {
 			continue
 		}
 		if strings.Contains(line, "MORA") {
+			foundPage++
+		}
+		if page > foundPage {
+			continue
+		}
+		// se achar nova página antes de achar a linha desejada, para de procurar
+		if foundPage > page {
+			return "", application.ErrIndiceCorrecaoNaoEncontrado
+		}
+		if value.MatchString(line) {
+			count--
+		}
+		if count == 0 {
+			return line, nil
+		}
+	}
+	return "", application.ErrIndiceCorrecaoNaoEncontrado
+}
+
+func findValorJurosMora(lines []string, page, count int) (string, error) {
+	value := regexp.MustCompile(`\d{1},\d{2}$`)
+	foundPage := 0
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if len(line) == 0 {
+			continue
+		}
+		if strings.Contains(line, "VALOR JUROS") {
 			foundPage++
 		}
 		if page > foundPage {
