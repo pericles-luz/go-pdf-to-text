@@ -225,6 +225,14 @@ func Linha(lines []string, page, line int, calculo *application.Calculo) error {
 		return application.ErrMesAnoNaoEncontrado
 	}
 	linha.SetMesAno(mesAno)
+	vencimentoBasico, err := findVencimentoBasico(lines, page, line)
+	if err != nil {
+		return err
+	}
+	if vencimentoBasico == "" {
+		return application.ErrVencimentoBasicoNaoEncontrado
+	}
+	linha.SetVencimentoBasico(vencimentoBasico)
 	calculo.AddLinha(linha)
 	return nil
 }
@@ -258,4 +266,46 @@ func findMesAno(lines []string, page, count int) (string, error) {
 		}
 	}
 	return "", application.ErrMesAnoNaoEncontrado
+}
+
+func findVencimentoBasico(lines []string, page, count int) (string, error) {
+	if page == 0 || count == 0 {
+		return "", application.ErrVencimentoBasicoNaoEncontrado
+	}
+	foundPage := 0
+	foundCount := 0
+	mesAno := regexp.MustCompile(`^(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)/\d{2}$`)
+	value := regexp.MustCompile(`,\d{2}$`)
+	for i := 0; i < len(lines); i++ {
+		if foundPage > page {
+			return "", application.ErrVencimentoBasicoNaoEncontrado
+		}
+		line := strings.TrimSpace(lines[i])
+		if mesAno.MatchString(line) {
+			continue
+		}
+		if len(line) == 0 && page != foundPage {
+			continue
+		}
+		if len(line) == 0 && foundCount > 0 {
+			return "", application.ErrVencimentoBasicoNaoEncontrado
+		}
+		if line == "ADICIONAL 1/3 DE" {
+			continue
+		}
+		if line == "FERIAS" {
+			continue
+		}
+		if line == "VENCIMENTO BASICO" {
+			foundPage++
+			continue
+		}
+		if value.MatchString(line) {
+			foundCount++
+		}
+		if foundPage == page && foundCount == count {
+			return line, nil
+		}
+	}
+	return "", application.ErrVencimentoBasicoNaoEncontrado
 }

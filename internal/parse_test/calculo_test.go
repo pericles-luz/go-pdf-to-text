@@ -66,7 +66,9 @@ func TestCalculoMustFindLinha(t *testing.T) {
 	calculo := application.NewCalculo()
 	err := parse.Linha(lines, 1, 10, calculo)
 	require.NoError(t, err)
-	require.NotNil(t, calculo.Linha("set/96"))
+	line := calculo.Linha("set/96")
+	require.NotNil(t, line)
+	require.Equal(t, uint64(13861), line.VencimentoBasico())
 }
 
 func TestCalculoMustNotFindLinha(t *testing.T) {
