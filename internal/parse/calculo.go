@@ -241,6 +241,14 @@ func Linha(lines []string, page, line int, calculo *application.Calculo) error {
 		return application.ErrSomaNaoEncontrada
 	}
 	linha.SetSoma(soma)
+	valorDevido, err := findValorDevido(lines, page, line)
+	if err != nil {
+		return err
+	}
+	if valorDevido == "" {
+		return application.ErrValorDevidoNaoEncontrado
+	}
+	linha.SetValorDevido(valorDevido)
 	calculo.AddLinha(linha)
 	return nil
 }
@@ -363,7 +371,7 @@ func findSoma(lines []string, page, count int) (string, error) {
 }
 
 // quando a soma etiver na página 2, a busca deve ser feita de forma diferente
-// é preciso localizar a linha com o texto VALOR DEVIDO e depois voltar até a
+// é preciso localizar a linha com o texto "VALOR DEVIDO" e depois voltar até a
 // segunda linha vazia. A partir daí, deve-se contar as linhas com valores
 // até encontrar a linha desejada
 func findSomaPage2(lines []string, index, count int) (string, error) {
@@ -402,4 +410,66 @@ func findSomaPage2(lines []string, index, count int) (string, error) {
 		}
 	}
 	return "", application.ErrSomaNaoEncontrada
+}
+
+func findValorDevido(lines []string, page, count int) (string, error) {
+	if page == 2 {
+		return findValorDevidoPage2(lines, page, count)
+	}
+	foundPage := 0
+	value := regexp.MustCompile(`,\d{2}$`)
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if len(line) == 0 {
+			continue
+		}
+		if line == "VALOR DEVIDO" {
+			foundPage++
+		}
+		if page > foundPage {
+			continue
+		}
+		// se achar nova página antes de achar a linha desejada, para de procurar
+		if foundPage > page {
+			return "", application.ErrValorDevidoNaoEncontrado
+		}
+		if value.MatchString(line) {
+			count--
+		}
+		if count == 0 {
+			return line, nil
+		}
+	}
+	return "", application.ErrValorDevidoNaoEncontrado
+}
+
+// na página 2, a busca deve ser feita de forma diferente
+// é preciso localizar a linha com o texto "Soma" e pesquisar os valores a partir
+// da linha seguinte até encontrar a linha desejada
+func findValorDevidoPage2(lines []string, page, count int) (string, error) {
+	foundPage := 0
+	value := regexp.MustCompile(`,\d{2}$`)
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if len(line) == 0 {
+			continue
+		}
+		if line == "Soma" {
+			foundPage++
+		}
+		if page > foundPage {
+			continue
+		}
+		// se achar nova página antes de achar a linha desejada, para de procurar
+		if foundPage > page {
+			return "", application.ErrValorDevidoNaoEncontrado
+		}
+		if value.MatchString(line) {
+			count--
+		}
+		if count == 0 {
+			return line, nil
+		}
+	}
+	return "", application.ErrValorDevidoNaoEncontrado
 }
