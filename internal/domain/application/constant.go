@@ -40,4 +40,11 @@ var (
 	ErrTotalInvalido              = errors.New("total invalido")
 	ErrDesagio35Invalido          = errors.New("desagio 35 invalido")
 	ErrTotalAposDesagio35Invalido = errors.New("total apos desagio 35 invalido")
+
+	ErrProcessoNumeroNaoEncontrado    = errors.New("processo numero nao encontrado")
+	ErrProcessoPrincipalNaoEncontrado = errors.New("processo principal nao encontrado")
+	ErrAjuizamentoNaoEncontrado       = errors.New("data de ajuizamento nao encontrada")
+	ErrCitacaoNaoEncontrada           = errors.New("data de citacao nao encontrada")
+	ErrCalculoNaoEncontrado           = errors.New("data de calculo nao encontrada")
+	ErrExequenteNaoEncontrado         = errors.New("exequente nao encontrado")
 )

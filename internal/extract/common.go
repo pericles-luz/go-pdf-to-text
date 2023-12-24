@@ -12,7 +12,7 @@ func MuitoDiferente(a, b uint64) bool {
 	return b-a > 10
 }
 
-func ReadLines(path string) ([]string, error) {
+func ReadLinesFromFile(path string) ([]string, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
