@@ -49,6 +49,14 @@ func Linha(lines []string, page, line int, calculo *application.Calculo) error {
 		return application.ErrIndiceCorrecaoNaoEncontrado
 	}
 	linha.SetIndiceCorrecao(indiceCorrecao)
+	valorCorrigido, err := findValorCorrigido(lines, page, line)
+	if err != nil {
+		return err
+	}
+	if valorCorrigido == "" {
+		return application.ErrValorCorrigidoNaoEncontrado
+	}
+	linha.SetValorCorrigido(valorCorrigido)
 	calculo.AddLinha(linha)
 	return nil
 }
@@ -300,4 +308,66 @@ func findIndiceCorrecao(lines []string, page, count int) (string, error) {
 		}
 	}
 	return "", application.ErrIndiceCorrecaoNaoEncontrado
+}
+
+func findValorCorrigido(lines []string, page, count int) (string, error) {
+	if page == 2 {
+		return findValorCorrigidoPage2(lines, 1+(page-1)*2, count)
+	}
+	foundPage := 0
+	value := regexp.MustCompile(`,\d{2}$`)
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if len(line) == 0 {
+			continue
+		}
+		if line == "CORRIGIDO" {
+			foundPage++
+		}
+		if page > foundPage {
+			continue
+		}
+		// se achar nova página antes de achar a linha desejada, para de procurar
+		if foundPage > page {
+			return "", application.ErrValorDevidoNaoEncontrado
+		}
+		if value.MatchString(line) {
+			count--
+		}
+		if count == 0 {
+			return line, nil
+		}
+	}
+	return "", application.ErrValorDevidoNaoEncontrado
+}
+
+// na página 2, a busca deve ser feita de forma diferente
+// é preciso localizar a linha com o texto "Soma" e pesquisar os valores a partir
+// da linha seguinte até encontrar a linha desejada
+func findValorCorrigidoPage2(lines []string, page, count int) (string, error) {
+	foundPage := 0
+	value := regexp.MustCompile(`,\d{2}$`)
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if len(line) == 0 {
+			continue
+		}
+		if line == "TOTAL" || line == "CORRIGIDO" {
+			foundPage++
+		}
+		if page > foundPage {
+			continue
+		}
+		// se achar nova página antes de achar a linha desejada, para de procurar
+		if foundPage > page {
+			return "", application.ErrValorDevidoNaoEncontrado
+		}
+		if value.MatchString(line) {
+			count--
+		}
+		if count == 0 {
+			return line, nil
+		}
+	}
+	return "", application.ErrValorDevidoNaoEncontrado
 }

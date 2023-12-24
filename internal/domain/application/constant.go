@@ -57,4 +57,5 @@ var (
 	ErrSomaNaoEncontrada                = errors.New("soma nao encontrada")
 	ErrValorDevidoNaoEncontrado         = errors.New("valor devido nao encontrado")
 	ErrIndiceCorrecaoNaoEncontrado      = errors.New("indice correcao nao encontrado")
+	ErrValorCorrigidoNaoEncontrado      = errors.New("valor corrigido nao encontrado")
 )
