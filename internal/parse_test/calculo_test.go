@@ -73,6 +73,7 @@ func TestCalculoMustFindLinha(t *testing.T) {
 	require.Equal(t, uint64(5334), line.ValorDevido())
 	require.Equal(t, uint64(256866867), line.IndiceCorrecao())
 	require.Equal(t, uint64(13701), line.ValorCorrigido())
+	require.Equal(t, uint64(1318171), line.JurosMora())
 }
 
 func TestCalculoMustNotFindLinha(t *testing.T) {
@@ -96,4 +97,5 @@ func TestCalculoMustFindLinhaOnSecondPage(t *testing.T) {
 	require.Equal(t, uint64(5562), line.ValorDevido())
 	require.Equal(t, uint64(243423518), line.IndiceCorrecao())
 	require.Equal(t, uint64(13538), line.ValorCorrigido())
+	require.Equal(t, uint64(1258171), line.JurosMora())
 }

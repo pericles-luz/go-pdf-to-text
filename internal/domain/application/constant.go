@@ -58,4 +58,5 @@ var (
 	ErrValorDevidoNaoEncontrado         = errors.New("valor devido nao encontrado")
 	ErrIndiceCorrecaoNaoEncontrado      = errors.New("indice correcao nao encontrado")
 	ErrValorCorrigidoNaoEncontrado      = errors.New("valor corrigido nao encontrado")
+	ErrJurosMoraNaoEncontrado           = errors.New("juros mora nao encontrado")
 )
