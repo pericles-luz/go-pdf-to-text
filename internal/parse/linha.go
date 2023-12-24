@@ -13,32 +13,20 @@ func Linha(lines []string, page, line int, calculo *application.Calculo) error {
 	if err != nil {
 		return err
 	}
-	if mesAno == "" {
-		return application.ErrMesAnoNaoEncontrado
-	}
 	linha.SetMesAno(mesAno)
 	vencimentoBasico, err := findVencimentoBasico(lines, page, line)
 	if err != nil {
 		return err
-	}
-	if vencimentoBasico == "" {
-		return application.ErrVencimentoBasicoNaoEncontrado
 	}
 	linha.SetVencimentoBasico(vencimentoBasico)
 	soma, err := findSoma(lines, page, line)
 	if err != nil {
 		return err
 	}
-	if soma == "" {
-		return application.ErrSomaNaoEncontrada
-	}
 	linha.SetSoma(soma)
 	valorDevido, err := findValorDevido(lines, page, line)
 	if err != nil {
 		return err
-	}
-	if valorDevido == "" {
-		return application.ErrValorDevidoNaoEncontrado
 	}
 	linha.SetValorDevido(valorDevido)
 	indiceCorrecao, err := findIndiceCorrecao(lines, page, line)
@@ -53,40 +41,25 @@ func Linha(lines []string, page, line int, calculo *application.Calculo) error {
 	if err != nil {
 		return err
 	}
-	if valorCorrigido == "" {
-		return application.ErrValorCorrigidoNaoEncontrado
-	}
 	linha.SetValorCorrigido(valorCorrigido)
 	jurosMora, err := findJurosMora(lines, page, line)
 	if err != nil {
 		return err
-	}
-	if jurosMora == "" {
-		return application.ErrJurosMoraNaoEncontrado
 	}
 	linha.SetJurosMora(jurosMora)
 	valorJurosMora, err := findValorJurosMora(lines, page, line)
 	if err != nil {
 		return err
 	}
-	if valorJurosMora == "" {
-		return application.ErrValorJurosMoraNaoEncontrado
-	}
 	linha.SetValorJurosMora(valorJurosMora)
 	totalDevido, err := findTotalDevido(lines, page, line)
 	if err != nil {
 		return err
 	}
-	if totalDevido == "" {
-		return application.ErrTotalDevidoNaoEncontrado
-	}
 	linha.SetTotalDevido(totalDevido)
 	percentual, err := findPercentual(lines, page, line)
 	if err != nil {
 		return err
-	}
-	if percentual == "" {
-		return application.ErrPercentualNaoEncontrado
 	}
 	linha.SetPercentual(percentual)
 	calculo.AddLinha(linha)
@@ -112,7 +85,7 @@ func findMesAno(lines []string, page, count int) (string, error) {
 		}
 		// se achar nova página antes de achar a linha desejada, para de procurar
 		if foundPage > page {
-			return "", nil
+			return "", application.ErrMesAnoNaoEncontrado
 		}
 		if re.MatchString(line) {
 			count--
