@@ -56,4 +56,5 @@ var (
 	ErrVencimentoBasicoNaoEncontrado    = errors.New("vencimento basico nao encontrado")
 	ErrSomaNaoEncontrada                = errors.New("soma nao encontrada")
 	ErrValorDevidoNaoEncontrado         = errors.New("valor devido nao encontrado")
+	ErrIndiceCorrecaoNaoEncontrado      = errors.New("indice correcao nao encontrado")
 )

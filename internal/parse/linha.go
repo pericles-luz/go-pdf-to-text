@@ -41,6 +41,14 @@ func Linha(lines []string, page, line int, calculo *application.Calculo) error {
 		return application.ErrValorDevidoNaoEncontrado
 	}
 	linha.SetValorDevido(valorDevido)
+	indiceCorrecao, err := findIndiceCorrecao(lines, page, line)
+	if err != nil {
+		return err
+	}
+	if indiceCorrecao == "" {
+		return application.ErrIndiceCorrecaoNaoEncontrado
+	}
+	linha.SetIndiceCorrecao(indiceCorrecao)
 	calculo.AddLinha(linha)
 	return nil
 }
@@ -264,4 +272,32 @@ func findValorDevidoPage2(lines []string, page, count int) (string, error) {
 		}
 	}
 	return "", application.ErrValorDevidoNaoEncontrado
+}
+
+func findIndiceCorrecao(lines []string, page, count int) (string, error) {
+	value := regexp.MustCompile(`^\d{1},\d{8}$`)
+	foundPage := 0
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if len(line) == 0 {
+			continue
+		}
+		if strings.Contains(line, "NDICE DE") {
+			foundPage++
+		}
+		if page > foundPage {
+			continue
+		}
+		// se achar nova página antes de achar a linha desejada, para de procurar
+		if foundPage > page {
+			return "", application.ErrIndiceCorrecaoNaoEncontrado
+		}
+		if value.MatchString(line) {
+			count--
+		}
+		if count == 0 {
+			return line, nil
+		}
+	}
+	return "", application.ErrIndiceCorrecaoNaoEncontrado
 }
