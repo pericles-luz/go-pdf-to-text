@@ -10,14 +10,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func readOriginFile(t *testing.T) []string {
-	lines, err := extract.ReadLinesFromFile(utils.GetBaseDirectory("pdf") + "/009-11804009-C.txt")
+func readOriginFile(t *testing.T, file string) []string {
+	lines, err := extract.ReadLinesFromFile(utils.GetBaseDirectory("pdf") + "/" + file)
 	require.NoError(t, err)
 	return lines
 }
 
 func TestCalculoMustFindBaseData(t *testing.T) {
-	lines := readOriginFile(t)
+	lines := readOriginFile(t, "009-11804009-C.txt")
 	calculo := application.NewCalculo()
 	err := parse.CalculoBase(lines, calculo)
 	require.NoError(t, err)

@@ -9,7 +9,7 @@ import (
 )
 
 func TestCalculoMustFindDesagio35(t *testing.T) {
-	lines := readOriginFile(t)
+	lines := readOriginFile(t, "009-11804009-C.txt")
 	calculo := application.NewCalculo()
 	err := parse.Desagio35(lines, calculo)
 	require.NoError(t, err)
@@ -19,7 +19,7 @@ func TestCalculoMustFindDesagio35(t *testing.T) {
 }
 
 func TestCalculoMustFindTotalAposDesagio35(t *testing.T) {
-	lines := readOriginFile(t)
+	lines := readOriginFile(t, "009-11804009-C.txt")
 	calculo := application.NewCalculo()
 	err := parse.TotalAposDesagio35(lines, calculo)
 	require.NoError(t, err)
@@ -29,7 +29,7 @@ func TestCalculoMustFindTotalAposDesagio35(t *testing.T) {
 }
 
 func TestCalculoMustFindTotal(t *testing.T) {
-	lines := readOriginFile(t)
+	lines := readOriginFile(t, "009-11804009-C.txt")
 	calculo := application.NewCalculo()
 	err := parse.Total(lines, calculo)
 	require.NoError(t, err)

@@ -9,7 +9,7 @@ import (
 )
 
 func TestCalculoMustFindLinha(t *testing.T) {
-	lines := readOriginFile(t)
+	lines := readOriginFile(t, "009-11804009-C.txt")
 	calculo := application.NewCalculo()
 	err := parse.Linha(lines, 1, 15, calculo)
 	require.NoError(t, err)
@@ -27,7 +27,7 @@ func TestCalculoMustFindLinha(t *testing.T) {
 }
 
 func TestCalculoMustNotFindLinha(t *testing.T) {
-	lines := readOriginFile(t)
+	lines := readOriginFile(t, "009-11804009-C.txt")
 	calculo := application.NewCalculo()
 	err := parse.Linha(lines, 1, 30, calculo)
 	require.EqualError(t, err, application.ErrMesAnoNaoEncontrado.Error())
@@ -36,7 +36,7 @@ func TestCalculoMustNotFindLinha(t *testing.T) {
 }
 
 func TestCalculoMustFindLinhaOnSecondPage(t *testing.T) {
-	lines := readOriginFile(t)
+	lines := readOriginFile(t, "009-11804009-C.txt")
 	calculo := application.NewCalculo()
 	err := parse.Linha(lines, 2, 3, calculo)
 	require.NoError(t, err)

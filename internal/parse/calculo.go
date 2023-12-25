@@ -110,11 +110,23 @@ func findExequente(lines []string, calculo *application.Calculo) error {
 		}
 		line = utils.GetOnlyNumbers(line)
 		if utils.ValidateCPF(line) {
-			calculo.SetCpf(line)
-			calculo.SetExequente(lines[i-1])
-			calculo.SetIdUnica(lines[i+1])
+			calculo.SetCpf(clearColon(line))
+			calculo.SetExequente(clearColon(lines[i-1]))
+			calculo.SetIdUnica(clearColon(lines[i+1]))
 			return nil
 		}
 	}
 	return application.ErrExequenteNaoEncontrado
+}
+
+// limpa textos no estilo label:  texto e retorna apenas o texto
+func clearColon(text string) string {
+	colonPosition := strings.Index(text, ":")
+	if colonPosition == -1 {
+		return strings.TrimSpace(text)
+	}
+	if colonPosition == len(text)-1 {
+		return ""
+	}
+	return strings.TrimSpace(text[colonPosition+1:])
 }

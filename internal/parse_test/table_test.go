@@ -9,7 +9,7 @@ import (
 )
 
 func TestTableMustReadEntireTable(t *testing.T) {
-	lines := readOriginFile(t)
+	lines := readOriginFile(t, "009-11804009-C.txt")
 	calculo := application.NewCalculo()
 	err := parse.Table(lines, calculo)
 	require.NoError(t, err)
