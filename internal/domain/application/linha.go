@@ -10,7 +10,6 @@ import (
 type Linha struct {
 	mesAno           time.Time
 	vencimentoBasico uint64
-	tercoFerias      uint64
 	soma             uint64
 	percentual       uint64
 	valorDevido      uint64
@@ -19,6 +18,11 @@ type Linha struct {
 	jurosMora        uint64
 	valorJurosMora   uint64
 	totalDevido      uint64
+	tercoFerias      uint64
+	// // anuênio, art 244 Lei 8112/90
+	// art244Lei8112    uint64
+	// // vantagens art 184,inciso II, lei 1711/52
+	// art184Lei1711    uint64
 }
 
 func NewLinha() *Linha {
