@@ -16,7 +16,7 @@ type Calculo struct {
 	exequente          string
 	cpf                string
 	idUnica            string
-	tabela             []*Linha
+	table              []*Linha
 	total              *Total
 	desagio35          *Total
 	totalAposDesagio35 *Total
@@ -59,12 +59,12 @@ func (c *Calculo) SetIdUnica(idUnica string) {
 }
 
 func (c *Calculo) AddLinha(l *Linha) error {
-	for _, linha := range c.tabela {
+	for _, linha := range c.table {
 		if linha.MesAno() == l.MesAno() {
 			return ErrLinhaJaExistente
 		}
 	}
-	c.tabela = append(c.tabela, l)
+	c.table = append(c.table, l)
 	return nil
 }
 
@@ -121,13 +121,13 @@ func (c *Calculo) IdUnica() string {
 	return c.idUnica
 }
 
-func (c *Calculo) Tabela() []*Linha {
-	return c.tabela
+func (c *Calculo) Table() []*Linha {
+	return c.table
 }
 
 func (c *Calculo) Linha(mesAno string) *Linha {
 	mesAno = mes[mesAno[0:3]] + "/19" + mesAno[4:6]
-	for _, linha := range c.tabela {
+	for _, linha := range c.table {
 		if linha.MesAno() == mesAno {
 			return linha
 		}
@@ -172,10 +172,10 @@ func (c *Calculo) Validate() error {
 	if c.IdUnica() == "" {
 		return ErrIdUnicaInvalido
 	}
-	if len(c.Tabela()) == 0 {
+	if len(c.Table()) == 0 {
 		return ErrTabelaInvalida
 	}
-	for _, linha := range c.Tabela() {
+	for _, linha := range c.Table() {
 		if err := linha.Validate(); err != nil {
 			return fmt.Errorf("linha inválida: %w", err)
 		}

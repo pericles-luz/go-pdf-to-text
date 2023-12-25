@@ -62,4 +62,6 @@ var (
 	ErrValorJurosMoraNaoEncontrado      = errors.New("valor juros mora nao encontrado")
 	ErrTotalDevidoNaoEncontrado         = errors.New("total devido nao encontrado")
 	ErrPercentualNaoEncontrado          = errors.New("percentual nao encontrado")
+
+	ErrFileNotFound = errors.New("arquivo nao encontrado")
 )
