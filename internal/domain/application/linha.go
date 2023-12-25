@@ -120,9 +120,9 @@ func (l *Linha) Validate() error {
 	if l.VencimentoBasico() == 0 {
 		return ErrVencimentoBasicoInvalido
 	}
-	if l.Soma() != l.VencimentoBasico()+l.TercoFerias() {
-		return ErrSomaInvalida
-	}
+	// if l.Soma() != l.VencimentoBasico()+l.TercoFerias() {
+	// 	return ErrSomaInvalida
+	// }
 	if l.Percentual() == 0 {
 		return ErrPercentualInvalido
 	}

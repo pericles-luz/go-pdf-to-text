@@ -37,12 +37,21 @@ func (c *Calculo) Parse(path string) error {
 	if err := parse.Table(c.lines, c.calculo); err != nil {
 		return err
 	}
+	if c.calculo.Total().TotalDevido() == 0 {
+		return application.ErrCalculoNaoEncontrado
+	}
+	if c.calculo.TotalDevido() != c.calculo.Total().TotalDevido() {
+		return application.ErrCalculoInconsistente
+	}
+	if err := c.calculo.Validate(); err != nil {
+		return err
+	}
 	return nil
 }
 
 func (c *Calculo) loadFile(path string) error {
 	if !utils.FileExists(path) {
-		return application.ErrFileNotFound
+		return application.ErrArquivoNaoEncontrado
 	}
 	lines, err := extract.ReadLinesFromFile(path)
 	if err != nil {

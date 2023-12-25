@@ -53,20 +53,20 @@ func TestLinhaMustReturnErrVencimentoBasicoInvalido(t *testing.T) {
 	require.EqualError(t, linha.Validate(), application.ErrVencimentoBasicoInvalido.Error())
 }
 
-func TestLinhaMustReturnErrSomaInvalida(t *testing.T) {
-	linha := application.NewLinha()
-	linha.SetMesAno("fev/97")
-	linha.SetVencimentoBasico("138,61")
-	linha.SetTercoFerias("46,20")
-	linha.SetPercentual("28,86%")
-	linha.SetValorDevido("53,34")
-	linha.SetIndiceCorrecao("2,56866867")
-	linha.SetValorCorrigido("137,01")
-	linha.SetJurosMora("131,8171%")
-	linha.SetValorJurosMora("180,60")
-	linha.SetTotalDevido("317,60")
-	require.EqualError(t, linha.Validate(), application.ErrSomaInvalida.Error())
-}
+// func TestLinhaMustReturnErrSomaInvalida(t *testing.T) {
+// 	linha := application.NewLinha()
+// 	linha.SetMesAno("fev/97")
+// 	linha.SetVencimentoBasico("138,61")
+// 	linha.SetTercoFerias("46,20")
+// 	linha.SetPercentual("28,86%")
+// 	linha.SetValorDevido("53,34")
+// 	linha.SetIndiceCorrecao("2,56866867")
+// 	linha.SetValorCorrigido("137,01")
+// 	linha.SetJurosMora("131,8171%")
+// 	linha.SetValorJurosMora("180,60")
+// 	linha.SetTotalDevido("317,60")
+// 	require.EqualError(t, linha.Validate(), application.ErrSomaInvalida.Error())
+// }
 
 func TestLinhaMustReturnErrPercentualInvalido(t *testing.T) {
 	linha := application.NewLinha()

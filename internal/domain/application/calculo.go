@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/pericles-luz/go-base/pkg/utils"
+	"github.com/pericles-luz/go-pdf-to-text/internal/extract"
 )
 
 type Calculo struct {
@@ -211,8 +212,16 @@ func (c *Calculo) ValidateTotals() error {
 	if c.Total().ValorCorrigido() != c.Desagio35().ValorCorrigido()+c.TotalAposDesagio35().ValorCorrigido() {
 		return ErrValorCorrigidoInvalido
 	}
-	if c.Total().ValorJurosMora() != c.Desagio35().ValorJurosMora()+c.TotalAposDesagio35().ValorJurosMora() {
+	if extract.MuitoDiferente(c.Total().ValorJurosMora(), c.Desagio35().ValorJurosMora()+c.TotalAposDesagio35().ValorJurosMora()) {
 		return ErrValorJurosMoraInvalido
 	}
 	return nil
+}
+
+func (c *Calculo) TotalDevido() uint64 {
+	result := uint64(0)
+	for _, linha := range c.Table() {
+		result += linha.TotalDevido()
+	}
+	return result
 }

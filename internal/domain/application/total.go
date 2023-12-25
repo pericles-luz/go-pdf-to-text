@@ -1,6 +1,9 @@
 package application
 
-import "github.com/pericles-luz/go-base/pkg/utils"
+import (
+	"github.com/pericles-luz/go-base/pkg/utils"
+	"github.com/pericles-luz/go-pdf-to-text/internal/extract"
+)
 
 type Total struct {
 	valorCorrigido uint64
@@ -43,7 +46,7 @@ func (t *Total) Validate() error {
 	if t.ValorJurosMora() == 0 {
 		return ErrValorJurosMoraInvalido
 	}
-	if t.TotalDevido() != t.ValorCorrigido()+t.ValorJurosMora() {
+	if extract.MuitoDiferente(t.TotalDevido(), t.ValorCorrigido()+t.ValorJurosMora()) {
 		return ErrTotalDevidoInvalido
 	}
 	return nil

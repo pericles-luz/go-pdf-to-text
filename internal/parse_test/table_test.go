@@ -16,4 +16,5 @@ func TestTableMustReadEntireTable(t *testing.T) {
 	require.NotNil(t, calculo.Linha("dez/95"))
 	require.NotNil(t, calculo.Linha("jun/98"))
 	require.Len(t, calculo.Table(), 31)
+	require.Equal(t, uint64(882540), calculo.TotalDevido())
 }
