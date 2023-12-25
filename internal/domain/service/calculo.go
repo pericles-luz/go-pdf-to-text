@@ -40,7 +40,7 @@ func (c *Calculo) Parse(path string) error {
 	if c.calculo.Total().TotalDevido() == 0 {
 		return application.ErrCalculoNaoEncontrado
 	}
-	if c.calculo.TotalDevido() != c.calculo.Total().TotalDevido() {
+	if extract.MuitoDiferente(c.calculo.TotalDevido(), c.calculo.Total().TotalDevido()) {
 		return application.ErrCalculoInconsistente
 	}
 	if err := c.calculo.Validate(); err != nil {

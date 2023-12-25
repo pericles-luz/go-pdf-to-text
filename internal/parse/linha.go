@@ -44,6 +44,9 @@ func Linha(lines []string, page, line int, calculo *application.Calculo) error {
 	if err := findTotalDevido(found, linha); err != nil {
 		return err
 	}
+	if err := linha.Validate(); err != nil {
+		return err
+	}
 	calculo.AddLinha(linha)
 	return nil
 }
@@ -66,7 +69,7 @@ func findLine(lines []string, page, count int) (string, error) {
 			continue
 		}
 		// se achar nova página antes de achar a linha desejada, para de procurar
-		if foundPage > page {
+		if foundPage > page || strings.HasPrefix(line, "TOTAL") {
 			return "", application.ErrMesAnoNaoEncontrado
 		}
 		if re.MatchString(line) {

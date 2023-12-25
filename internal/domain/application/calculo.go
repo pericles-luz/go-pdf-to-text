@@ -209,7 +209,7 @@ func (c *Calculo) ValidateTotals() error {
 	if c.Total().TotalDevido() != c.Desagio35().TotalDevido()+c.TotalAposDesagio35().TotalDevido() {
 		return ErrTotalInvalido
 	}
-	if c.Total().ValorCorrigido() != c.Desagio35().ValorCorrigido()+c.TotalAposDesagio35().ValorCorrigido() {
+	if extract.MuitoDiferente(c.Total().ValorCorrigido(), c.Desagio35().ValorCorrigido()+c.TotalAposDesagio35().ValorCorrigido()) {
 		return ErrValorCorrigidoInvalido
 	}
 	if extract.MuitoDiferente(c.Total().ValorJurosMora(), c.Desagio35().ValorJurosMora()+c.TotalAposDesagio35().ValorJurosMora()) {

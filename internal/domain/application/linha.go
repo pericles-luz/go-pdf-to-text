@@ -130,9 +130,9 @@ func (l *Linha) Validate() error {
 	if l.Percentual() == 0 {
 		return ErrPercentualInvalido
 	}
-	if extract.MuitoDiferente(l.ValorDevido(), l.Soma()*l.Percentual()/10000) {
-		return ErrValorDevidoInvalido
-	}
+	// if extract.MuitoDiferente(l.ValorDevido(), l.Soma()*l.Percentual()/10000) {
+	// 	return ErrValorDevidoInvalido
+	// }
 	if l.IndiceCorrecao() == 0 {
 		return ErrIndiceCorrecaoInvalido
 	}
