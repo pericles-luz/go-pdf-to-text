@@ -64,5 +64,6 @@ var (
 	ErrPercentualNaoEncontrado          = errors.New("percentual nao encontrado")
 
 	ErrArquivoNaoEncontrado = errors.New("arquivo nao encontrado")
+	ErrArquivoInvalido      = errors.New("arquivo invalido")
 	ErrCalculoInconsistente = errors.New("calculos inconsistentes")
 )

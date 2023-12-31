@@ -1,6 +1,10 @@
 package service
 
 import (
+	"log"
+	"os/exec"
+	"path/filepath"
+
 	"github.com/pericles-luz/go-base/pkg/utils"
 	"github.com/pericles-luz/go-pdf-to-text/internal/domain/application"
 	"github.com/pericles-luz/go-pdf-to-text/internal/extract"
@@ -58,5 +62,33 @@ func (c *Calculo) loadFile(path string) error {
 		return err
 	}
 	c.lines = lines
+	return nil
+}
+
+func (c *Calculo) GenerateTextFile(path string) error {
+	if !utils.FileExists(path) {
+		return application.ErrArquivoNaoEncontrado
+	}
+	if filepath.Ext(path) != ".pdf" {
+		return application.ErrArquivoInvalido
+	}
+	log.Println("pdftotext", "-layout", "-nopgbrk", path, path[:len(path)-4]+".txt")
+	err := exec.Command("pdftotext", "-layout", "-nopgbrk", path, path[:len(path)-4]+".txt").Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Calculo) ProcessFile(path string) error {
+	if !utils.FileExists(path) {
+		return application.ErrArquivoNaoEncontrado
+	}
+	if filepath.Ext(path) == ".txt" {
+		return c.Parse(path)
+	}
+	if filepath.Ext(path) == ".pdf" {
+		return c.GenerateTextFile(path)
+	}
 	return nil
 }

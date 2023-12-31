@@ -19,3 +19,15 @@ func TestCalculoWithAdvantagesMustParse(t *testing.T) {
 	err := calculo.Parse(utils.GetBaseDirectory("pdf") + "/004-01139401-C.txt")
 	require.NoError(t, err)
 }
+
+func TestCalculoMustProcessTextFile(t *testing.T) {
+	calculo := service.NewCalculo()
+	err := calculo.ProcessFile(utils.GetBaseDirectory("pdf") + "/009-11804009-C.txt")
+	require.NoError(t, err)
+}
+
+func TestCalculoMustProcessPDFFile(t *testing.T) {
+	calculo := service.NewCalculo()
+	err := calculo.ProcessFile(utils.GetBaseDirectory("pdf") + "/009-11804009-C.pdf")
+	require.NoError(t, err)
+}

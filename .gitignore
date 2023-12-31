@@ -22,3 +22,4 @@ go.work
 
 # pdf directory
 pdf/
+pdf/*.txt
