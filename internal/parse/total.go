@@ -80,6 +80,10 @@ func TotalAposDesagio35(lines []string, calculo *application.Calculo) error {
 
 func readTotal(line string, total *application.Total) error {
 	values := regexp.MustCompile(`[\d.,]+`)
+	if len(line) < 40 {
+		fmt.Println("toal não encontrado em:", line)
+		return application.ErrTotalInvalido
+	}
 	matches := values.FindAllString(line[40:], -1)
 	if len(matches) != 3 {
 		return application.ErrTotalInvalido

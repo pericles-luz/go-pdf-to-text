@@ -1,6 +1,7 @@
 package convert
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -32,7 +33,7 @@ func Walk(path string, p processFile) error {
 		}
 		err = p.ProcessFile(filepath.Join(path, file.Name()))
 		if err != nil {
-			return err
+			fmt.Printf("error processing file(%s): %s\n", file.Name(), err.Error())
 		}
 	}
 	return nil
