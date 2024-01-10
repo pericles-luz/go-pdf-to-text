@@ -122,10 +122,17 @@ func (l *Line) Validate() error {
 
 // 2     RONALDO ASSUNCAO JACOMINI                       176.757.826-15         1495275                         0,00               0,00           0,00                0,00   Não Consta CPF na Lista
 func (l *Line) Parse(line string) error {
+	line = strings.TrimSpace(line)
 	for strings.Contains(line, "    ") {
 		line = strings.ReplaceAll(line, "    ", "   ")
 	}
+	if len(line) < 50 {
+		return application.ErrLinhaInvalida
+	}
 	values := strings.Split(line, "   ")
+	if len(values) < 9 {
+		return application.ErrLinhaInvalida
+	}
 	l.SetSequence(uint16(utils.StringToInt(strings.TrimSpace(values[0]))))
 	l.SetName(strings.TrimSpace(values[1]))
 	l.SetCPF(strings.TrimSpace(values[2]))
