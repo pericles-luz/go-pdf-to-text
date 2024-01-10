@@ -40,6 +40,7 @@ var (
 	ErrTotalInvalido              = errors.New("total invalido")
 	ErrDesagio35Invalido          = errors.New("desagio 35 invalido")
 	ErrTotalAposDesagio35Invalido = errors.New("total apos desagio 35 invalido")
+	ErrHonorarioInvalido          = errors.New("honorario invalido")
 
 	ErrProcessoNumeroNaoEncontrado      = errors.New("processo numero nao encontrado")
 	ErrProcessoPrincipalNaoEncontrado   = errors.New("processo principal nao encontrado")

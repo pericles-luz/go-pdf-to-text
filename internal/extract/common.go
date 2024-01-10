@@ -3,6 +3,9 @@ package extract
 import (
 	"bufio"
 	"os"
+	"strings"
+
+	"github.com/pericles-luz/go-base/pkg/utils"
 )
 
 func MuitoDiferente(a, b uint64) bool {
@@ -25,4 +28,11 @@ func ReadLinesFromFile(path string) ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 	return lines, scanner.Err()
+}
+
+func StringToInt(s string) uint64 {
+	s = strings.ReplaceAll(s, ".", "")
+	s = strings.ReplaceAll(s, ",", "")
+	s = strings.ReplaceAll(s, "-", "")
+	return uint64(utils.StringToInt(s))
 }
