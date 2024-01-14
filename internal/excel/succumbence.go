@@ -19,8 +19,9 @@ const (
 type Succumbence struct {
 	sheetName   string
 	outputPath  string
-	summaries   []*application_fee.Summary
 	styleIDs    [10]int
+	summaries   []*application_fee.Summary
+	total       *application_fee.TotalLine
 	file        *excelize.File
 	currentLine int
 }
@@ -30,6 +31,7 @@ func NewSuccumbence(s []*application_fee.Summary, o string) *Succumbence {
 		summaries:  s,
 		outputPath: o,
 	}
+	result.total = application_fee.NewTotalLine()
 	result.currentLine = 1
 	result.sheetName = "Listagens"
 	result.styleIDs[StyleTableHeader] = result.tableHeaderStyle()
@@ -278,11 +280,33 @@ func (s *Succumbence) ProcessFile() error {
 		if err := s.writeSummary(summary); err != nil {
 			return err
 		}
+		s.total.SetMain(s.total.Main() + summary.Total().Main())
+		s.total.SetInterest(s.total.Interest() + summary.Total().Interest())
+		s.total.SetTotal(s.total.Total() + summary.Total().Total())
+		s.total.SetFees(s.total.Fees() + summary.Total().Fees())
 		s.currentLine++
+	}
+	if err := s.writeTotal(); err != nil {
+		return err
 	}
 	if err := s.write(s.outputPath); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (s *Succumbence) writeTotal() error {
+	if err := s.total.Validate(); err != nil {
+		return err
+	}
+	s.currentLine += 3
+	s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("I", s.currentLine), s.styleIDs[StyleTableFooter])
+	s.getFile().SetCellStyle(s.sheetName, s.cell("F", s.currentLine), s.cell("I", s.currentLine), s.styleIDs[StyleFooterValue])
+	s.getFile().SetCellStr(s.sheetName, s.cell("C", s.currentLine), "TOTAL GERAL")
+	s.getFile().SetCellFloat(s.sheetName, s.cell("F", s.currentLine), float64(s.total.Main())/100, 2, 64)
+	s.getFile().SetCellFloat(s.sheetName, s.cell("G", s.currentLine), float64(s.total.Interest())/100, 2, 64)
+	s.getFile().SetCellFloat(s.sheetName, s.cell("H", s.currentLine), float64(s.total.Total())/100, 2, 64)
+	s.getFile().SetCellFloat(s.sheetName, s.cell("I", s.currentLine), float64(s.total.Fees())/100, 2, 64)
 	return nil
 }
 
