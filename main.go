@@ -19,4 +19,8 @@ func main() {
 		fmt.Println(summary.MainProcess())
 		fmt.Println(summary.Total().Total())
 	}
+	err = convert.GenerateSuccumbence("/mnt/c/Users/peric/Downloads/PDFs", processor)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

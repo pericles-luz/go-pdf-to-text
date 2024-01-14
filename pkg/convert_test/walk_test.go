@@ -1,6 +1,7 @@
 package convert_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/pericles-luz/go-base/pkg/utils"
@@ -29,6 +30,7 @@ func TestWalkMustProcessTestDirectoryWithSummary(t *testing.T) {
 }
 
 func TestWalkMustProcessRealDirectoryWithSummary(t *testing.T) {
+	t.Skip("This test takes too long to run")
 	processor := service_fee.NewSummary()
 	err := convert.Walk("/mnt/c/Users/peric/Downloads/PDFs", processor)
 	require.NoError(t, err)
@@ -37,8 +39,18 @@ func TestWalkMustProcessRealDirectoryWithSummary(t *testing.T) {
 
 func TestWalkMustProcessTestDirectoryWithSummaryAndGenerateExcel(t *testing.T) {
 	processor := service_fee.NewSummary()
-	err := convert.GenerateSuccumbence(utils.GetBaseDirectory("pdf"), processor)
+	err := convert.Walk(utils.GetBaseDirectory("pdf"), processor)
 	require.NoError(t, err)
+	require.Len(t, processor.Summaries(), 6)
+	require.NoError(t, convert.GenerateSuccumbence(utils.GetBaseDirectory("pdf"), processor))
 	require.FileExists(t, utils.GetBaseDirectory("pdf")+"/honorarios consolidados.xlsx")
-	// require.NoError(t, os.Remove(utils.GetBaseDirectory("pdf")+"/honorarios consolidados.xlsx"))
+	require.NoError(t, os.Remove(utils.GetBaseDirectory("pdf")+"/honorarios consolidados.xlsx"))
+}
+
+func TestWalkMustProcessRealDirectoryWithSummaryAndGenerateExcel(t *testing.T) {
+	t.Skip("This test takes too long to run")
+	processor := service_fee.NewSummary()
+	err := convert.Walk("/mnt/c/Users/peric/Downloads/PDFs", processor)
+	require.NoError(t, err)
+	require.Len(t, processor.Summaries(), 2)
 }
