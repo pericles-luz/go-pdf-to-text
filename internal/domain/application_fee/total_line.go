@@ -1,6 +1,7 @@
 package application_fee
 
 import (
+	"log"
 	"strings"
 
 	"github.com/pericles-luz/go-pdf-to-text/internal/domain/application"
@@ -63,6 +64,20 @@ func (l *TotalLine) Validate() error {
 	if l.Fees() == 0 {
 		return application.ErrTotalHonorarioInvalido
 	}
+	if err := l.ValidateSum(); err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func (l *TotalLine) ValidateSum() error {
+	if extract.MuitoDiferente(l.Total(), l.Main()+l.Interest()) {
+		return application.ErrTotalNaoBate
+	}
+	if extract.MuitoDiferente(l.Fees(), l.Total()*10/100) {
+		return application.ErrTotalHonorarioNaoBate
+	}
 	return nil
 }
 
@@ -70,6 +85,9 @@ func (l *TotalLine) Parse(line string) error {
 	line = strings.TrimSpace(line)
 	if len(line) < 50 {
 		return application.ErrLinhaInvalida
+	}
+	if !strings.HasPrefix(line, "TOTAL GERAL") {
+		return application.ErrLinhaNaoEhTotalGeral
 	}
 	for strings.Contains(line, "    ") {
 		line = strings.ReplaceAll(line, "    ", "   ")

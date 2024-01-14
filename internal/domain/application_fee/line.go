@@ -14,7 +14,7 @@ type Line struct {
 	name     string
 	uniqueID string
 	main     uint64
-	discount uint64
+	interest uint64
 	total    uint64
 	fees     uint64
 	status   string
@@ -44,8 +44,8 @@ func (l *Line) Main() uint64 {
 	return l.main
 }
 
-func (l *Line) Discount() uint64 {
-	return l.discount
+func (l *Line) Interest() uint64 {
+	return l.interest
 }
 
 func (l *Line) Total() uint64 {
@@ -82,8 +82,8 @@ func (l *Line) SetMain(main uint64) {
 	l.main = main
 }
 
-func (l *Line) SetDiscount(discount uint64) {
-	l.discount = discount
+func (l *Line) SetInterest(interest uint64) {
+	l.interest = interest
 }
 
 func (l *Line) SetTotal(total uint64) {
@@ -108,14 +108,27 @@ func (l *Line) Validate() error {
 	if l.Main() == 0 {
 		return application.ErrVencimentoBasicoInvalido
 	}
-	if l.Discount() == 0 {
-		return application.ErrDesagio35Invalido
+	if l.Interest() == 0 {
+		return application.ErrJurosMoraInvalido
 	}
 	if l.Total() == 0 {
 		return application.ErrTotalInvalido
 	}
 	if l.Fees() == 0 {
 		return application.ErrHonorarioInvalido
+	}
+	if err := l.ValidateSum(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (l *Line) ValidateSum() error {
+	if extract.MuitoDiferente(l.Total(), l.Main()+l.Interest()) {
+		return application.ErrTotalNaoBate
+	}
+	if extract.MuitoDiferente(l.Fees(), l.Total()*10/100) {
+		return application.ErrTotalHonorarioNaoBate
 	}
 	return nil
 }
@@ -138,7 +151,7 @@ func (l *Line) Parse(line string) error {
 	l.SetCPF(strings.TrimSpace(values[2]))
 	l.SetUniqueID(strings.TrimSpace(values[3]))
 	l.SetMain(extract.StringToInt(strings.TrimSpace(values[4])))
-	l.SetDiscount(extract.StringToInt(strings.TrimSpace(values[5])))
+	l.SetInterest(extract.StringToInt(strings.TrimSpace(values[5])))
 	l.SetTotal(extract.StringToInt(strings.TrimSpace(values[6])))
 	l.SetFees(extract.StringToInt(strings.TrimSpace(values[7])))
 	l.SetStatus(strings.TrimSpace(values[8]))

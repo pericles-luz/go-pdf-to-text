@@ -42,6 +42,14 @@ func CalculoBase(lines []string, calculo *application.Calculo) error {
 	return nil
 }
 
+func FindExecutionNumber(lines []string) (string, error) {
+	return findProcessoNumero(lines)
+}
+
+func FindMainNumber(lines []string) (string, error) {
+	return findProcessoPrincipal(lines)
+}
+
 func findProcessoNumero(lines []string) (string, error) {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
