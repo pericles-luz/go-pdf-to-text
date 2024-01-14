@@ -59,6 +59,7 @@ func (l *TotalLine) Validate() error {
 		return application.ErrTotalJurosInvalido
 	}
 	if l.Total() == 0 {
+		log.Println("Total serado em totalLine:", l.Total())
 		return application.ErrTotalInvalido
 	}
 	if l.Fees() == 0 {
@@ -82,6 +83,7 @@ func (l *TotalLine) ValidateSum() error {
 }
 
 func (l *TotalLine) Parse(line string) error {
+	line = strings.ReplaceAll(line, "-", "")
 	line = strings.TrimSpace(line)
 	if len(line) < 50 {
 		return application.ErrLinhaInvalida

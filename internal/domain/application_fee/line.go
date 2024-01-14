@@ -1,6 +1,7 @@
 package application_fee
 
 import (
+	"log"
 	"strings"
 
 	"github.com/pericles-luz/go-base/pkg/utils"
@@ -112,6 +113,7 @@ func (l *Line) Validate() error {
 		return application.ErrJurosMoraInvalido
 	}
 	if l.Total() == 0 {
+		log.Println("total zerado em line para CPF", l.CPF())
 		return application.ErrTotalInvalido
 	}
 	if l.Fees() == 0 {

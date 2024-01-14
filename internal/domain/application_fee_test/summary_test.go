@@ -22,6 +22,38 @@ func TestSummaryMustParse(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestSummaryMustParseWithOtherInfotmations(t *testing.T) {
+	lines := readOriginFile(t, "038-Honorários.txt")
+	summary := application_fee.NewSummary()
+	err := summary.Parse(lines)
+	require.NoError(t, err)
+	require.NoError(t, summary.Validate())
+}
+
+func TestSummaryMustParseWithOtherInfotmations2(t *testing.T) {
+	lines := readOriginFile(t, "035-Honorários.txt")
+	summary := application_fee.NewSummary()
+	err := summary.Parse(lines)
+	require.NoError(t, err)
+	require.NoError(t, summary.Validate())
+}
+
+func TestSummaryMustParseWithNumberWithoutLabel(t *testing.T) {
+	lines := readOriginFile(t, "069-Honorários.txt")
+	summary := application_fee.NewSummary()
+	err := summary.Parse(lines)
+	require.NoError(t, err)
+	require.NoError(t, summary.Validate())
+}
+
+func TestSummaryMustParseWithNumberWithoutTotal(t *testing.T) {
+	lines := readOriginFile(t, "202-Honorários.txt")
+	summary := application_fee.NewSummary()
+	err := summary.Parse(lines)
+	require.NoError(t, err)
+	require.NoError(t, summary.Validate())
+}
+
 func TestSummaryMustDetectFeesFile(t *testing.T) {
 	lines := readOriginFile(t, "002-Honorários.txt")
 	summary := application_fee.NewSummary()

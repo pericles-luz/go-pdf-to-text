@@ -1,6 +1,7 @@
 package application_fee
 
 import (
+	"log"
 	"strings"
 
 	"github.com/pericles-luz/go-pdf-to-text/internal/domain/application"
@@ -74,6 +75,7 @@ func (s *Summary) Validate() error {
 		return application.ErrTabelaInvalida
 	}
 	if s.Total() == nil {
+		log.Println("total zerado em summary")
 		return application.ErrTotalInvalido
 	}
 	if err := s.Total().Validate(); err != nil {

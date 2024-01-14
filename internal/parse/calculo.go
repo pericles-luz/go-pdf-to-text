@@ -53,9 +53,20 @@ func FindMainNumber(lines []string) (string, error) {
 func findProcessoNumero(lines []string) (string, error) {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if len(line) > 0 && strings.Contains(line, "Processo nº") {
-			re := regexp.MustCompile(`\d{7}-\d{2}.\d{4}.\d{1}.\d{2}.\d{4}`)
+		if len(line) == 0 {
+			continue
+		}
+		if strings.Contains(line, "Processo nº") {
+			re := regexp.MustCompile(`\d+-\d{2}.\d{4}.\d{1}.\d{2}.\d{4}`)
 			matches := re.FindAllString(line, -1)
+			return matches[0], nil
+		}
+		if strings.Contains(line, "(Principal:") {
+			re := regexp.MustCompile(`\d+-\d{2}.\d{4}.\d{1}.\d{2}.\d{4}`)
+			matches := re.FindAllString(line, -1)
+			if len(matches) != 2 {
+				continue
+			}
 			return matches[0], nil
 		}
 	}
@@ -66,7 +77,7 @@ func findProcessoPrincipal(lines []string) (string, error) {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if len(line) > 0 && strings.Contains(line, "(Principal:") {
-			re := regexp.MustCompile(`\d{7}-\d{2}.\d{4}.\d{1}.\d{2}.\d{4}`)
+			re := regexp.MustCompile(`\d+-\d{2}.\d{4}.\d{1}.\d{2}.\d{4}`)
 			matches := re.FindAllString(line, -1)
 			return matches[len(matches)-1], nil
 		}
