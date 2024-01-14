@@ -109,7 +109,7 @@ func (s *Succumbence) writeSummary(summary *application_fee.Summary) error {
 	return nil
 }
 
-func (s *Succumbence) Process() error {
+func (s *Succumbence) ProcessFile() error {
 	defer s.close()
 	for _, summary := range s.summaries {
 		if err := s.writeSummary(summary); err != nil {
