@@ -1,6 +1,8 @@
 package application_fee
 
 import (
+	"strings"
+
 	"github.com/pericles-luz/go-pdf-to-text/internal/domain/application"
 	"github.com/pericles-luz/go-pdf-to-text/internal/parse"
 )
@@ -85,6 +87,7 @@ func (s *Summary) Validate() error {
 		totalLine.SetMain(totalLine.Main() + line.Main())
 		totalLine.SetInterest(totalLine.Interest() + line.Interest())
 		totalLine.SetTotal(totalLine.Total() + line.Total())
+		totalLine.SetFees(totalLine.Fees() + line.Fees())
 	}
 	return totalLine.Validate()
 }
@@ -114,4 +117,13 @@ func (s *Summary) Parse(lines []string) error {
 		}
 	}
 	return nil
+}
+
+func (s *Summary) IsFeesFile(lines []string) bool {
+	for _, line := range lines {
+		if strings.Contains(strings.ToLower(line), strings.ToLower("Planilha Consolidada - Honor")) {
+			return true
+		}
+	}
+	return false
 }

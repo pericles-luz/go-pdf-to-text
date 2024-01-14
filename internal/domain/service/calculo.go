@@ -73,6 +73,10 @@ func (c *Calculo) GenerateTextFile(path string) error {
 		return application.ErrArquivoInvalido
 	}
 	log.Println("pdftotext", "-layout", "-nopgbrk", path, path[:len(path)-4]+".txt")
+	if utils.FileExists(path[:len(path)-4] + ".txt") {
+		log.Println("Arquivo já existe")
+		return nil
+	}
 	err := exec.Command("pdftotext", "-layout", "-nopgbrk", path, path[:len(path)-4]+".txt").Run()
 	if err != nil {
 		return err

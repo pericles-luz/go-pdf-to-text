@@ -21,3 +21,15 @@ func TestSummaryMustParse(t *testing.T) {
 	err := summary.Parse(lines)
 	require.NoError(t, err)
 }
+
+func TestSummaryMustDetectFeesFile(t *testing.T) {
+	lines := readOriginFile(t, "002-Honorários.txt")
+	summary := application_fee.NewSummary()
+	require.True(t, summary.IsFeesFile(lines))
+}
+
+func TestSummaryMustNotDetectFeesFile(t *testing.T) {
+	lines := readOriginFile(t, "086-11861592-C.txt")
+	summary := application_fee.NewSummary()
+	require.False(t, summary.IsFeesFile(lines))
+}
