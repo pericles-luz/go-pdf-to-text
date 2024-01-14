@@ -219,12 +219,12 @@ func (s *Succumbence) writeHeader(summary *application_fee.Summary) error {
 	return nil
 }
 
-func (s *Succumbence) writeLine(line *application_fee.Line) error {
+func (s *Succumbence) writeLine(line *application_fee.Line, index int) error {
 	if err := line.Validate(); err != nil {
 		return err
 	}
 	s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("I", s.currentLine), s.styleIDs[StyleTableLine])
-	s.getFile().SetCellInt(s.sheetName, s.cell("A", s.currentLine), 0)
+	s.getFile().SetCellInt(s.sheetName, s.cell("A", s.currentLine), index)
 	s.getFile().SetCellInt(s.sheetName, s.cell("B", s.currentLine), int(line.Sequence()))
 	s.getFile().SetCellStr(s.sheetName, s.cell("C", s.currentLine), line.Name())
 	s.getFile().SetCellStr(s.sheetName, s.cell("D", s.currentLine), line.CPF())
@@ -256,8 +256,8 @@ func (s *Succumbence) writeSummary(summary *application_fee.Summary) error {
 	if err := s.writeHeader(summary); err != nil {
 		return err
 	}
-	for _, line := range summary.Table() {
-		if err := s.writeLine(line); err != nil {
+	for i, line := range summary.Table() {
+		if err := s.writeLine(line, i+1); err != nil {
 			return err
 		}
 	}
