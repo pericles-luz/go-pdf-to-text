@@ -24,6 +24,7 @@ type Succumbence struct {
 	total       *application_fee.TotalLine
 	file        *excelize.File
 	currentLine int
+	countLines  int
 }
 
 func NewSuccumbence(s []*application_fee.Summary, o string) *Succumbence {
@@ -33,6 +34,7 @@ func NewSuccumbence(s []*application_fee.Summary, o string) *Succumbence {
 	}
 	result.total = application_fee.NewTotalLine()
 	result.currentLine = 1
+	result.countLines = 0
 	result.sheetName = "Listagens"
 	result.styleIDs[StyleTableHeader] = result.tableHeaderStyle()
 	result.styleIDs[StyleTableLine] = result.tableLineStyle()
@@ -221,12 +223,12 @@ func (s *Succumbence) writeHeader(summary *application_fee.Summary) error {
 	return nil
 }
 
-func (s *Succumbence) writeLine(line *application_fee.Line, index int) error {
+func (s *Succumbence) writeLine(line *application_fee.Line) error {
 	if err := line.Validate(); err != nil {
 		return err
 	}
 	s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("I", s.currentLine), s.styleIDs[StyleTableLine])
-	s.getFile().SetCellInt(s.sheetName, s.cell("A", s.currentLine), index)
+	s.getFile().SetCellInt(s.sheetName, s.cell("A", s.currentLine), s.countLines)
 	s.getFile().SetCellInt(s.sheetName, s.cell("B", s.currentLine), int(line.Sequence()))
 	s.getFile().SetCellStr(s.sheetName, s.cell("C", s.currentLine), line.Name())
 	s.getFile().SetCellStr(s.sheetName, s.cell("D", s.currentLine), line.CPF())
@@ -240,12 +242,14 @@ func (s *Succumbence) writeLine(line *application_fee.Line, index int) error {
 	return nil
 }
 
-func (s *Succumbence) writeFooter(summary *application_fee.Summary) error {
+func (s *Succumbence) writeFooter(summary *application_fee.Summary, countingLines int) error {
 	if err := summary.Validate(); err != nil {
 		return err
 	}
 	s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("I", s.currentLine), s.styleIDs[StyleTableFooter])
 	s.getFile().SetCellStyle(s.sheetName, s.cell("F", s.currentLine), s.cell("I", s.currentLine), s.styleIDs[StyleFooterValue])
+	s.getFile().SetCellStr(s.sheetName, s.cell("B", s.currentLine), fmt.Sprintf("%d beneficiários na execução", countingLines))
+	s.getFile().MergeCell(s.sheetName, s.cell("B", s.currentLine), s.cell("E", s.currentLine))
 	s.getFile().SetCellFloat(s.sheetName, s.cell("F", s.currentLine), float64(summary.Total().Main())/100, 2, 64)
 	s.getFile().SetCellFloat(s.sheetName, s.cell("G", s.currentLine), float64(summary.Total().Interest())/100, 2, 64)
 	s.getFile().SetCellFloat(s.sheetName, s.cell("H", s.currentLine), float64(summary.Total().Total())/100, 2, 64)
@@ -258,12 +262,15 @@ func (s *Succumbence) writeSummary(summary *application_fee.Summary) error {
 	if err := s.writeHeader(summary); err != nil {
 		return err
 	}
-	for i, line := range summary.Table() {
-		if err := s.writeLine(line, i+1); err != nil {
+	countLines := 0
+	for _, line := range summary.Table() {
+		s.countLines++
+		if err := s.writeLine(line); err != nil {
 			return err
 		}
+		countLines++
 	}
-	if err := s.writeFooter(summary); err != nil {
+	if err := s.writeFooter(summary, countLines); err != nil {
 		return err
 	}
 	index, err := s.getFile().GetSheetIndex(s.sheetName)
@@ -302,7 +309,9 @@ func (s *Succumbence) writeTotal() error {
 	s.currentLine += 3
 	s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("I", s.currentLine), s.styleIDs[StyleTableFooter])
 	s.getFile().SetCellStyle(s.sheetName, s.cell("F", s.currentLine), s.cell("I", s.currentLine), s.styleIDs[StyleFooterValue])
-	s.getFile().SetCellStr(s.sheetName, s.cell("C", s.currentLine), "TOTAL GERAL")
+	s.getFile().SetCellStr(s.sheetName, s.cell("B", s.currentLine), fmt.Sprintf("%d beneficiários totais", s.countLines))
+	s.getFile().MergeCell(s.sheetName, s.cell("B", s.currentLine), s.cell("D", s.currentLine))
+	s.getFile().SetCellStr(s.sheetName, s.cell("E", s.currentLine), "TOTAL GERAL")
 	s.getFile().SetCellFloat(s.sheetName, s.cell("F", s.currentLine), float64(s.total.Main())/100, 2, 64)
 	s.getFile().SetCellFloat(s.sheetName, s.cell("G", s.currentLine), float64(s.total.Interest())/100, 2, 64)
 	s.getFile().SetCellFloat(s.sheetName, s.cell("H", s.currentLine), float64(s.total.Total())/100, 2, 64)
