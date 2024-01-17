@@ -72,6 +72,8 @@ var (
 	ErrTotalDevidoNaoEncontrado         = errors.New("total devido nao encontrado")
 	ErrPercentualNaoEncontrado          = errors.New("percentual nao encontrado")
 
+	ErrNumeroLocalDeExecucaoNaoEncontrado = errors.New("numero local de execucao nao encontrado")
+
 	ErrArquivoNaoEncontrado    = errors.New("arquivo nao encontrado")
 	ErrArquivoInvalido         = errors.New("arquivo invalido")
 	ErrCalculoInconsistente    = errors.New("calculos inconsistentes")

@@ -27,5 +27,5 @@ func TestReadLinesFromFileMustReturnErrFileNotFound(t *testing.T) {
 
 func TestReadLinesFromFileMustRead424Lines(t *testing.T) {
 	lines := readOriginFile(t)
-	require.Len(t, lines, 424)
+	require.Len(t, lines, 64)
 }

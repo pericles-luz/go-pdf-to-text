@@ -1,6 +1,7 @@
 package application_fee
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -9,10 +10,11 @@ import (
 )
 
 type Summary struct {
-	executionNumber string
-	mainProcess     string
-	table           []*Line
-	total           *TotalLine
+	localExecutionNumber string
+	executionNumber      string
+	mainProcess          string
+	table                []*Line
+	total                *TotalLine
 }
 
 func NewSummary() *Summary {
@@ -23,6 +25,10 @@ func (s *Summary) ExecutionNumber() string {
 	return s.executionNumber
 }
 
+func (s *Summary) LocalExecutionNumber() string {
+	return s.localExecutionNumber
+}
+
 func (s *Summary) MainProcess() string {
 	return s.mainProcess
 }
@@ -31,16 +37,16 @@ func (s *Summary) Table() []*Line {
 	return s.table
 }
 
-func (s *Summary) Total() *TotalLine {
-	return s.total
-}
-
 func (s *Summary) SetExecutionNumber(executionNumber string) {
 	s.executionNumber = executionNumber
 }
 
 func (s *Summary) SetMainProcess(mainProcess string) {
 	s.mainProcess = mainProcess
+}
+
+func (s *Summary) SetLocalExecutionNumber(localExecutionNumber string) {
+	s.localExecutionNumber = localExecutionNumber
 }
 
 func (s *Summary) AddToTable(line *Line) error {
@@ -58,7 +64,7 @@ func (s *Summary) AddToTable(line *Line) error {
 
 func (s *Summary) SetTotal(total *TotalLine) error {
 	if err := total.Validate(); err != nil {
-		return err
+		return fmt.Errorf("total invalido em summary: %w", err)
 	}
 	s.total = total
 	return nil
@@ -74,24 +80,14 @@ func (s *Summary) Validate() error {
 	if len(s.Table()) == 0 {
 		return application.ErrTabelaInvalida
 	}
-	if s.Total() == nil {
+	if s.total == nil {
 		log.Println("total zerado em summary")
 		return application.ErrTotalInvalido
 	}
-	if err := s.Total().Validate(); err != nil {
+	if err := s.total.Validate(); err != nil {
 		return err
 	}
-	totalLine := NewTotalLine()
-	for _, line := range s.Table() {
-		if err := line.Validate(); err != nil {
-			return err
-		}
-		totalLine.SetMain(totalLine.Main() + line.Main())
-		totalLine.SetInterest(totalLine.Interest() + line.Interest())
-		totalLine.SetTotal(totalLine.Total() + line.Total())
-		totalLine.SetFees(totalLine.Fees() + line.Fees())
-	}
-	return totalLine.Validate()
+	return s.CalculateTotal().Validate()
 }
 
 func (s *Summary) Parse(lines []string) error {
@@ -108,6 +104,11 @@ func (s *Summary) Parse(lines []string) error {
 		return err
 	}
 	s.SetMainProcess(main)
+	localExecutionNumber, err := parse.FindLocalExecutionNumber(lines)
+	if err != nil {
+		return err
+	}
+	s.SetLocalExecutionNumber(localExecutionNumber)
 	totalLine := NewTotalLine()
 	for _, source := range lines {
 		if err := totalLine.Parse(source); err == nil {
@@ -128,4 +129,37 @@ func (s *Summary) IsFeesFile(lines []string) bool {
 		}
 	}
 	return false
+}
+
+func (s *Summary) HasLines() bool {
+	for _, line := range s.Table() {
+		if line.Useble() {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Summary) RemoveFromTable(line *Line) {
+	for index, l := range s.table {
+		if l.CPF() == line.CPF() {
+			s.remove(index)
+			return
+		}
+	}
+}
+
+func (s *Summary) remove(index int) {
+	s.table = append(s.table[:index], s.table[index+1:]...)
+}
+
+func (s *Summary) CalculateTotal() *TotalLine {
+	totalLine := NewTotalLine()
+	for _, line := range s.Table() {
+		if !line.Useble() {
+			continue
+		}
+		totalLine.Add(line)
+	}
+	return totalLine
 }

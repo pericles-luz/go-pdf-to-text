@@ -10,19 +10,22 @@ import (
 )
 
 type Line struct {
-	sequence uint16
 	cpf      string
 	name     string
+	status   string
 	uniqueID string
 	main     uint64
 	interest uint64
 	total    uint64
 	fees     uint64
-	status   string
+	sequence uint16
+	useble   bool
 }
 
 func NewLine() *Line {
-	return &Line{}
+	return &Line{
+		useble: true,
+	}
 }
 
 func (l *Line) Sequence() uint16 {
@@ -59,6 +62,10 @@ func (l *Line) Fees() uint64 {
 
 func (l *Line) Status() string {
 	return l.status
+}
+
+func (l *Line) Useble() bool {
+	return l.useble
 }
 
 func (l *Line) SetSequence(sequence uint16) {
@@ -99,6 +106,10 @@ func (l *Line) SetStatus(status string) {
 	l.status = status
 }
 
+func (l *Line) SetUseble(useble bool) {
+	l.useble = useble
+}
+
 func (l *Line) Validate() error {
 	if l.CPF() == "" {
 		return application.ErrCpfInvalido
@@ -127,6 +138,7 @@ func (l *Line) Validate() error {
 
 func (l *Line) ValidateSum() error {
 	if extract.MuitoDiferente(l.Total(), l.Main()+l.Interest()) {
+		log.Println("total não bate em line para CPF", l.CPF(), "total", l.Total(), "main", l.Main(), "interest", l.Interest())
 		return application.ErrTotalNaoBate
 	}
 	if extract.MuitoDiferente(l.Fees(), l.Total()*10/100) {

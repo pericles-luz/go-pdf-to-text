@@ -1,12 +1,20 @@
 package application_fee
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
 	"github.com/pericles-luz/go-pdf-to-text/internal/domain/application"
 	"github.com/pericles-luz/go-pdf-to-text/internal/extract"
 )
+
+type AddTotals interface {
+	Main() uint64
+	Interest() uint64
+	Total() uint64
+	Fees() uint64
+}
 
 type TotalLine struct {
 	main     uint64
@@ -53,6 +61,7 @@ func (l *TotalLine) SetFees(fees uint64) {
 
 func (l *TotalLine) Validate() error {
 	if l.Main() == 0 {
+		log.Println("totais:", l.Main(), l.Interest(), l.Total(), l.Fees())
 		return application.ErrTotalPrincipalInvalido
 	}
 	if l.Interest() == 0 {
@@ -67,13 +76,14 @@ func (l *TotalLine) Validate() error {
 	}
 	if err := l.ValidateSum(); err != nil {
 		log.Println(err)
-		return err
+		return fmt.Errorf("erro ao validar totalLine: %w", err)
 	}
 	return nil
 }
 
 func (l *TotalLine) ValidateSum() error {
 	if extract.MuitoDiferente(l.Total(), l.Main()+l.Interest()) {
+		log.Println("diferença:", l.Total(), l.Main()+l.Interest(), l.Total()-l.Main()-l.Interest())
 		return application.ErrTotalNaoBate
 	}
 	if extract.MuitoDiferente(l.Fees(), l.Total()*10/100) {
@@ -103,4 +113,25 @@ func (l *TotalLine) Parse(line string) error {
 	l.SetTotal(extract.StringToInt(strings.TrimSpace(values[3])))
 	l.SetFees(extract.StringToInt(strings.TrimSpace(values[4])))
 	return l.Validate()
+}
+
+func (l *TotalLine) Add(total AddTotals) {
+	l.SetMain(l.Main() + total.Main())
+	l.SetInterest(l.Interest() + total.Interest())
+	l.SetTotal(l.Total() + total.Total())
+	l.SetFees(l.Fees() + total.Fees())
+}
+
+func (l *TotalLine) Subtract(total AddTotals) {
+	l.SetMain(l.Main() - total.Main())
+	l.SetInterest(l.Interest() - total.Interest())
+	l.SetTotal(l.Total() - total.Total())
+	l.SetFees(l.Fees() - total.Fees())
+}
+
+func (l *TotalLine) Initialize() {
+	l.SetMain(0)
+	l.SetInterest(0)
+	l.SetTotal(0)
+	l.SetFees(0)
 }

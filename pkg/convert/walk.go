@@ -52,6 +52,10 @@ func GenerateSuccumbence(path string, walker *service_fee.Summary) error {
 		return application.ErrNenhumArquivoEncontrado
 	}
 	generator := excel.NewSuccumbence(walker.Summaries(), filepath.Join(path, "honorarios consolidados.xlsx"))
+	err = generator.LoadPrevious(filepath.Join(path, "anterior.xlsx"))
+	if err != nil {
+		return err
+	}
 	err = generator.ProcessFile()
 	if err != nil {
 		return err

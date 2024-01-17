@@ -15,8 +15,8 @@ func TestLineMustValidate(t *testing.T) {
 	line.SetUniqueID("00000000000")
 	line.SetMain(1000)
 	line.SetInterest(100)
-	line.SetTotal(900)
-	line.SetFees(100)
+	line.SetTotal(1100)
+	line.SetFees(110)
 	line.SetStatus("OK")
 	err := line.Validate()
 	require.NoError(t, err)
@@ -24,7 +24,7 @@ func TestLineMustValidate(t *testing.T) {
 
 func TestLineMustParseWithNoValue(t *testing.T) {
 	line := application_fee.NewLine()
-	err := line.Parse("2     RONALDO ASSUNCAO JACOMINI                       176.757.826-15         1495275                         1.000,00               100,00           900,00                90,00   Não Consta CPF na Lista")
+	err := line.Parse("2     RONALDO ASSUNCAO JACOMINI                       176.757.826-15         1495275                         1.000,00               100,00           1.100,00                110,00   Não Consta CPF na Lista")
 	require.NoError(t, err)
 	require.Equal(t, uint16(2), line.Sequence())
 	require.Equal(t, "17675782615", line.CPF())
@@ -32,8 +32,8 @@ func TestLineMustParseWithNoValue(t *testing.T) {
 	require.Equal(t, "1495275", line.UniqueID())
 	require.Equal(t, uint64(100000), line.Main())
 	require.Equal(t, uint64(10000), line.Interest())
-	require.Equal(t, uint64(90000), line.Total())
-	require.Equal(t, uint64(9000), line.Fees())
+	require.Equal(t, uint64(110000), line.Total())
+	require.Equal(t, uint64(11000), line.Fees())
 	require.Equal(t, "Não Consta CPF na Lista", line.Status())
 }
 

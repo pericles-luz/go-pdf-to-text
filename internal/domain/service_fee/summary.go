@@ -11,7 +11,6 @@ import (
 )
 
 type Summary struct {
-	Summary   *application_fee.Summary
 	summaries []*application_fee.Summary
 	lines     []string
 }
@@ -88,4 +87,12 @@ func (s *Summary) Summaries() []*application_fee.Summary {
 
 func (s *Summary) AddSummary(summary *application_fee.Summary) {
 	s.summaries = append(s.summaries, summary)
+}
+
+func (s *Summary) CalculateTotal() *application_fee.TotalLine {
+	total := application_fee.NewTotalLine()
+	for _, summary := range s.Summaries() {
+		total.Add(summary.CalculateTotal())
+	}
+	return total
 }

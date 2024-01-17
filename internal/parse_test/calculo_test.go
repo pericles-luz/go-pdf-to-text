@@ -30,3 +30,10 @@ func TestCalculoMustFindBaseData(t *testing.T) {
 	require.Equal(t, "03410702709", calculo.Cpf())
 	require.Equal(t, "11804009", calculo.IdUnica())
 }
+
+func TestCalculoMustParseLocalExecutionNumber(t *testing.T) {
+	lines := readOriginFile(t, "009-11804009-C.txt")
+	localExecutionNumber, err := parse.FindLocalExecutionNumber(lines)
+	require.NoError(t, err)
+	require.Equal(t, "01", localExecutionNumber)
+}

@@ -26,7 +26,7 @@ func TestWalkMustProcessTestDirectoryWithSummary(t *testing.T) {
 	processor := service_fee.NewSummary()
 	err := convert.Walk(utils.GetBaseDirectory("pdf"), processor)
 	require.NoError(t, err)
-	require.Len(t, processor.Summaries(), 2)
+	require.Len(t, processor.Summaries(), 6)
 }
 
 func TestWalkMustProcessRealDirectoryWithSummary(t *testing.T) {

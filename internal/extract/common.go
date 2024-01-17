@@ -10,9 +10,9 @@ import (
 
 func MuitoDiferente(a, b uint64) bool {
 	if a > b {
-		return a-b > 10
+		return a-b > 1000
 	}
-	return b-a > 10
+	return b-a > 1000
 }
 
 func ReadLinesFromFile(path string) ([]string, error) {

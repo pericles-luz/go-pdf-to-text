@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"path/filepath"
 
 	"github.com/pericles-luz/go-pdf-to-text/internal/domain/service_fee"
 	"github.com/pericles-luz/go-pdf-to-text/pkg/convert"
@@ -10,16 +11,16 @@ import (
 
 func main() {
 	processor := service_fee.NewSummary()
-	err := convert.Walk("/mnt/c/Users/peric/Downloads/PDFs", processor)
+	// path := "/mnt/c/Users/peric/Downloads/PDFs"
+	path := filepath.Join("/", "mnt", "c", "Users", "peric", "Downloads", "PDFs")
+	err := convert.Walk(path, processor)
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, summary := range processor.Summaries() {
-		fmt.Println(summary.ExecutionNumber())
-		fmt.Println(summary.MainProcess())
-		fmt.Println(summary.Total().Total())
+		fmt.Println(summary.LocalExecutionNumber(), summary.ExecutionNumber(), summary.MainProcess(), summary.CalculateTotal())
 	}
-	err = convert.GenerateSuccumbence("/mnt/c/Users/peric/Downloads/PDFs", processor)
+	err = convert.GenerateSuccumbence(path, processor)
 	if err != nil {
 		log.Fatal(err)
 	}
