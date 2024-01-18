@@ -2,6 +2,7 @@ package excel
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/pericles-luz/go-base/pkg/utils"
 	"github.com/pericles-luz/go-pdf-to-text/internal/domain/application"
@@ -197,7 +198,7 @@ func (s *Succumbence) tableFooterValueStyle() int {
 
 func (s *Succumbence) writeHeader(summary *application_fee.Summary) error {
 	if err := summary.Validate(); err != nil {
-		return err
+		return fmt.Errorf("summary invalido em writeheader: %w", err)
 	}
 	s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("I", s.currentLine+1), s.styleIDs[StyleTitle])
 	s.getFile().SetCellStr(s.sheetName, s.cell("A", s.currentLine), "Execução")
@@ -228,7 +229,7 @@ func (s *Succumbence) writeHeader(summary *application_fee.Summary) error {
 
 func (s *Succumbence) writeLine(line *application_fee.Line) error {
 	if err := line.Validate(); err != nil {
-		return err
+		return fmt.Errorf("linha invalida em writeline: %w", err)
 	}
 	s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("I", s.currentLine), s.styleIDs[StyleTableLine])
 	s.getFile().SetCellInt(s.sheetName, s.cell("A", s.currentLine), s.countLines)
@@ -318,9 +319,34 @@ func (s *Succumbence) ProcessFile() error {
 	if err := s.writeTotal(s.CalculateTotal()); err != nil {
 		return err
 	}
-	if err := s.writeExistents(); err != nil {
+	hasSummary = false
+	s.sheetName = "Listagens Anteriores"
+	s.countLines = 0
+	s.currentLine = 1
+	s.getFile().NewSheet(s.sheetName)
+	for _, summary := range s.summaries {
+		for _, line := range summary.Table() {
+			line.SetUseble(!line.Useble())
+		}
+		if !summary.HasLines() {
+			log.Println("summary sem linhas em listagens anteriores: ", summary.LocalExecutionNumber())
+			continue
+		}
+		if err := s.writeSummary(summary); err != nil {
+			return err
+		}
+		hasSummary = true
+		s.currentLine++
+	}
+	if !hasSummary {
+		return nil
+	}
+	if err := s.writeTotal(s.CalculateTotal()); err != nil {
 		return err
 	}
+	// if err := s.writeExistents(); err != nil {
+	// 	return err
+	// }
 	if err := s.write(s.outputPath); err != nil {
 		return err
 	}
@@ -387,55 +413,55 @@ func (s *Succumbence) ExistsOnPrevious(cpf string) bool {
 	return false
 }
 
-func (s *Succumbence) writeExistents() error {
-	if len(s.existents) == 0 {
-		return nil
-	}
-	s.currentLine = 1
-	s.sheetName = "Listagens Anteriores"
-	s.getFile().NewSheet(s.sheetName)
-	s.getFile().SetColWidth(s.sheetName, "A", "B", 10)
-	s.getFile().SetCellStr(s.sheetName, s.cell("A", s.currentLine), "Nº PESSOAS")
-	s.getFile().SetCellStr(s.sheetName, s.cell("B", s.currentLine), "SEQ")
-	s.getFile().SetColWidth(s.sheetName, "C", "C", 35)
-	s.getFile().SetCellStr(s.sheetName, s.cell("C", s.currentLine), "NOME")
-	s.getFile().SetColWidth(s.sheetName, "D", "E", 15)
-	s.getFile().SetCellStr(s.sheetName, s.cell("D", s.currentLine), "CPF")
-	s.getFile().SetCellStr(s.sheetName, s.cell("E", s.currentLine), "IDENTIFICADOR ÚNICO")
-	s.getFile().SetColWidth(s.sheetName, "F", "I", 20)
-	s.getFile().SetCellStr(s.sheetName, s.cell("F", s.currentLine), "PRINCIPAL ATUALIZADO (COM DESÁGIO)")
-	s.getFile().SetCellStr(s.sheetName, s.cell("G", s.currentLine), "JUROS DE MORA ATUALIZADO (COM DESÁGIO)")
-	s.getFile().SetCellStr(s.sheetName, s.cell("H", s.currentLine), "TOTAL COM DESÁGIO")
-	s.getFile().SetCellStr(s.sheetName, s.cell("I", s.currentLine), "HONORÁRIOS DE SUCUMBÊNCIA 10%")
-	s.currentLine++
-	total := application_fee.NewTotalLine()
-	total.SetMain(0)
-	total.SetInterest(0)
-	total.SetTotal(0)
-	total.SetFees(0)
-	s.countLines = 0
-	for _, line := range s.existents {
-		line.SetUseble(!line.Useble())
-		if !line.Useble() {
-			continue
-		}
-		if err := s.writeLine(line); err != nil {
-			return err
-		}
-		total.Add(line)
-		s.countLines++
-	}
-	fmt.Println(len(s.existents))
-	fmt.Println("existents:", len(s.existents))
-	fmt.Println("principal:", total.Main())
-	fmt.Println("interest:", total.Interest())
-	fmt.Println("total:", total.Total())
-	fmt.Println("fees:", total.Fees())
-	if err := s.writeFooter(total, len(s.existents)); err != nil {
-		return err
-	}
-	return nil
-}
+// func (s *Succumbence) writeExistents() error {
+// 	if len(s.existents) == 0 {
+// 		return nil
+// 	}
+// 	s.currentLine = 1
+// 	s.sheetName = "Listagens Anteriores"
+// 	s.getFile().NewSheet(s.sheetName)
+// 	s.getFile().SetColWidth(s.sheetName, "A", "B", 10)
+// 	s.getFile().SetCellStr(s.sheetName, s.cell("A", s.currentLine), "Nº PESSOAS")
+// 	s.getFile().SetCellStr(s.sheetName, s.cell("B", s.currentLine), "SEQ")
+// 	s.getFile().SetColWidth(s.sheetName, "C", "C", 35)
+// 	s.getFile().SetCellStr(s.sheetName, s.cell("C", s.currentLine), "NOME")
+// 	s.getFile().SetColWidth(s.sheetName, "D", "E", 15)
+// 	s.getFile().SetCellStr(s.sheetName, s.cell("D", s.currentLine), "CPF")
+// 	s.getFile().SetCellStr(s.sheetName, s.cell("E", s.currentLine), "IDENTIFICADOR ÚNICO")
+// 	s.getFile().SetColWidth(s.sheetName, "F", "I", 20)
+// 	s.getFile().SetCellStr(s.sheetName, s.cell("F", s.currentLine), "PRINCIPAL ATUALIZADO (COM DESÁGIO)")
+// 	s.getFile().SetCellStr(s.sheetName, s.cell("G", s.currentLine), "JUROS DE MORA ATUALIZADO (COM DESÁGIO)")
+// 	s.getFile().SetCellStr(s.sheetName, s.cell("H", s.currentLine), "TOTAL COM DESÁGIO")
+// 	s.getFile().SetCellStr(s.sheetName, s.cell("I", s.currentLine), "HONORÁRIOS DE SUCUMBÊNCIA 10%")
+// 	s.currentLine++
+// 	total := application_fee.NewTotalLine()
+// 	total.SetMain(0)
+// 	total.SetInterest(0)
+// 	total.SetTotal(0)
+// 	total.SetFees(0)
+// 	s.countLines = 0
+// 	for _, line := range s.existents {
+// 		line.SetUseble(!line.Useble())
+// 		if !line.Useble() {
+// 			continue
+// 		}
+// 		if err := s.writeLine(line); err != nil {
+// 			return err
+// 		}
+// 		total.Add(line)
+// 		s.countLines++
+// 	}
+// 	fmt.Println(len(s.existents))
+// 	fmt.Println("existents:", len(s.existents))
+// 	fmt.Println("principal:", total.Main())
+// 	fmt.Println("interest:", total.Interest())
+// 	fmt.Println("total:", total.Total())
+// 	fmt.Println("fees:", total.Fees())
+// 	if err := s.writeFooter(total, len(s.existents)); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
 func (s *Succumbence) CalculateTotal() *application_fee.TotalLine {
 	total := application_fee.NewTotalLine()
