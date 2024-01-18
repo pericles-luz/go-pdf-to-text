@@ -201,7 +201,7 @@ func (s *Succumbence) writeHeader(summary *application_fee.Summary) error {
 	}
 	s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("I", s.currentLine+1), s.styleIDs[StyleTitle])
 	s.getFile().SetCellStr(s.sheetName, s.cell("A", s.currentLine), "Execução")
-	s.getFile().SetCellStr(s.sheetName, s.cell("B", s.currentLine), summary.LocalExecutionNumber())
+	s.getFile().SetCellInt(s.sheetName, s.cell("B", s.currentLine), int(summary.LocalExecutionNumber()))
 	s.getFile().SetCellStr(s.sheetName, s.cell("C", s.currentLine), "Cumprimento de Sentença nº")
 	s.getFile().SetCellStr(s.sheetName, s.cell("D", s.currentLine), summary.ExecutionNumber())
 	s.currentLine++

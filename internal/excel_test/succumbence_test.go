@@ -16,7 +16,7 @@ func TestSuccumbenceMustGenerateFileOfOneSource(t *testing.T) {
 	require.NoError(t, err)
 	err = summary.Parse(utils.GetBaseDirectory("pdf") + "/002-Honorários.txt")
 	require.NoError(t, err)
-	require.Len(t, summary.Summaries(), 2)
+	require.Len(t, summary.Summaries(), 1)
 	succumbence := excel.NewSuccumbence(summary.Summaries(), utils.GetBaseDirectory("pdf")+"/002-Honorários.xlsx")
 	succumbence.LoadPrevious(utils.GetBaseDirectory("pdf") + "/anterior.xlsx")
 	err = succumbence.ProcessFile()

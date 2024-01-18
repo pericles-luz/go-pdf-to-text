@@ -10,7 +10,7 @@ import (
 )
 
 type Summary struct {
-	localExecutionNumber string
+	localExecutionNumber uint16
 	executionNumber      string
 	mainProcess          string
 	table                []*Line
@@ -25,7 +25,7 @@ func (s *Summary) ExecutionNumber() string {
 	return s.executionNumber
 }
 
-func (s *Summary) LocalExecutionNumber() string {
+func (s *Summary) LocalExecutionNumber() uint16 {
 	return s.localExecutionNumber
 }
 
@@ -45,7 +45,7 @@ func (s *Summary) SetMainProcess(mainProcess string) {
 	s.mainProcess = mainProcess
 }
 
-func (s *Summary) SetLocalExecutionNumber(localExecutionNumber string) {
+func (s *Summary) SetLocalExecutionNumber(localExecutionNumber uint16) {
 	s.localExecutionNumber = localExecutionNumber
 }
 
@@ -56,6 +56,10 @@ func (s *Summary) AddToTable(line *Line) error {
 	for _, l := range s.table {
 		if l.Sequence() == line.Sequence() {
 			return application.ErrLinhaJaExistente
+		}
+		if l.CPF() == line.CPF() {
+			log.Println("cpf já existente em summary:", line.CPF(), "honorário existente:", l.Fees(), "honorário novo:", line.Fees())
+			return nil
 		}
 	}
 	s.table = append(s.table, line)

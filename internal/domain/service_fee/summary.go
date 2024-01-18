@@ -1,6 +1,7 @@
 package service_fee
 
 import (
+	"log"
 	"os/exec"
 	"path/filepath"
 
@@ -86,7 +87,27 @@ func (s *Summary) Summaries() []*application_fee.Summary {
 }
 
 func (s *Summary) AddSummary(summary *application_fee.Summary) {
+	for _, s := range s.Summaries() {
+		if s.LocalExecutionNumber() == summary.LocalExecutionNumber() {
+			log.Println("localExecutionNumber já existe em summaries, tentando incluir clientes:", summary.LocalExecutionNumber(), "linhas na existente:", len(s.Table()), "linhas na descartada:", len(summary.Table()))
+			for _, l := range summary.Table() {
+				s.AddToTable(l)
+			}
+			return
+		}
+	}
 	s.summaries = append(s.summaries, summary)
+	s.orderSummaries()
+}
+
+func (s *Summary) orderSummaries() {
+	for i := 0; i < len(s.summaries); i++ {
+		for j := 0; j < len(s.summaries)-1; j++ {
+			if s.summaries[j].LocalExecutionNumber() > s.summaries[j+1].LocalExecutionNumber() {
+				s.summaries[j], s.summaries[j+1] = s.summaries[j+1], s.summaries[j]
+			}
+		}
+	}
 }
 
 func (s *Summary) CalculateTotal() *application_fee.TotalLine {

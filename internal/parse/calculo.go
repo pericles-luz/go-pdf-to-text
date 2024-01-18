@@ -54,7 +54,7 @@ func FindMainNumber(lines []string) (string, error) {
 // Example: Processo nº. Execução 19-PJe nº 0001830-18.2013.4.05.8100 (Principal: 0001830-18.2013.4.05.8100)
 // the number wiil be 19
 // Processo nº. Execução 19-PJe nº 0001830-18.2013.4.05.8100 (Principal: 0006379-33.1997.4.05.8100) - 4ª VF/CE
-func FindLocalExecutionNumber(lines []string) (string, error) {
+func FindLocalExecutionNumber(lines []string) (uint16, error) {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if len(line) == 0 {
@@ -66,10 +66,10 @@ func FindLocalExecutionNumber(lines []string) (string, error) {
 			if len(matches) == 0 {
 				continue
 			}
-			return utils.GetOnlyNumbers(matches[0]), nil
+			return uint16(utils.StringToInt(utils.GetOnlyNumbers(matches[0]))), nil
 		}
 	}
-	return "", application.ErrNumeroLocalDeExecucaoNaoEncontrado
+	return uint16(0), application.ErrNumeroLocalDeExecucaoNaoEncontrado
 }
 
 func findProcessoNumero(lines []string) (string, error) {
