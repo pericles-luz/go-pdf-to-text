@@ -76,6 +76,9 @@ func (s *Summary) ProcessFile(path string) error {
 	if filepath.Ext(path) == ".txt" {
 		return s.Parse(path)
 	}
+	if filepath.Ext(path) == ".xlsm" {
+		return s.Parse(path)
+	}
 	if filepath.Ext(path) == ".pdf" {
 		return s.GenerateTextFile(path)
 	}

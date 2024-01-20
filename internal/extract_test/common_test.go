@@ -14,10 +14,16 @@ func readOriginFile(t *testing.T) []string {
 	return lines
 }
 
-func TestReadLinesFromFile(t *testing.T) {
+func TestReadLinesFromTextFile(t *testing.T) {
 	lines, err := extract.ReadLinesFromFile(utils.GetBaseDirectory("pdf") + "/lines.txt")
 	require.NoError(t, err)
 	require.Equal(t, []string{"line 1", "line 2", "line 3"}, lines)
+}
+
+func TestReadLinesFromExcelFile(t *testing.T) {
+	lines, err := extract.ReadLinesFromFile(utils.GetBaseDirectory("pdf") + "/Execução 130.xlsm")
+	require.NoError(t, err)
+	t.Log(lines)
 }
 
 func TestReadLinesFromFileMustReturnErrFileNotFound(t *testing.T) {

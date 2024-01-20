@@ -10,12 +10,42 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSuccumbenceMustGenerateFileOfOneSource(t *testing.T) {
+func TestSuccumbenceMustGenerateFileOfTwoEqualSources(t *testing.T) {
 	summary := service_fee.NewSummary()
 	err := summary.Parse(utils.GetBaseDirectory("pdf") + "/002-Honorários.txt")
 	require.NoError(t, err)
 	err = summary.Parse(utils.GetBaseDirectory("pdf") + "/002-Honorários.txt")
 	require.NoError(t, err)
+	require.Len(t, summary.Summaries(), 1)
+	succumbence := excel.NewSuccumbence(summary.Summaries(), utils.GetBaseDirectory("pdf")+"/002-Honorários.xlsx")
+	succumbence.LoadPrevious(utils.GetBaseDirectory("pdf") + "/anterior.xlsx")
+	err = succumbence.ProcessFile()
+	require.NoError(t, err)
+	require.FileExists(t, utils.GetBaseDirectory("pdf")+"/002-Honorários.xlsx")
+	require.NoError(t, os.Remove(utils.GetBaseDirectory("pdf")+"/002-Honorários.xlsx"))
+}
+
+func TestSuccumbenceMustGenerateFileOfTextAndExcelSources(t *testing.T) {
+	summary := service_fee.NewSummary()
+	err := summary.Parse(utils.GetBaseDirectory("pdf") + "/002-Honorários.txt")
+	require.NoError(t, err)
+	err = summary.Parse(utils.GetBaseDirectory("pdf") + "/Execução 130.xlsm")
+	require.NoError(t, err)
+	require.Len(t, summary.Summaries(), 2)
+	succumbence := excel.NewSuccumbence(summary.Summaries(), utils.GetBaseDirectory("pdf")+"/002-Honorários.xlsx")
+	succumbence.LoadPrevious(utils.GetBaseDirectory("pdf") + "/anterior.xlsx")
+	err = succumbence.ProcessFile()
+	require.NoError(t, err)
+	require.FileExists(t, utils.GetBaseDirectory("pdf")+"/002-Honorários.xlsx")
+	require.NoError(t, os.Remove(utils.GetBaseDirectory("pdf")+"/002-Honorários.xlsx"))
+}
+
+func TestSuccumbenceMustGenerateFileOfOneExcelSource(t *testing.T) {
+	summary := service_fee.NewSummary()
+	err := summary.Parse(utils.GetBaseDirectory("pdf") + "/Execução 130.xlsm")
+	require.NoError(t, err)
+	// err = summary.Parse(utils.GetBaseDirectory("pdf") + "/002-Honorários.txt")
+	// require.NoError(t, err)
 	require.Len(t, summary.Summaries(), 1)
 	succumbence := excel.NewSuccumbence(summary.Summaries(), utils.GetBaseDirectory("pdf")+"/002-Honorários.xlsx")
 	succumbence.LoadPrevious(utils.GetBaseDirectory("pdf") + "/anterior.xlsx")

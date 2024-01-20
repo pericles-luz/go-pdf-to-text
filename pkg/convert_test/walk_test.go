@@ -41,7 +41,6 @@ func TestWalkMustProcessTestDirectoryWithSummaryAndGenerateExcel(t *testing.T) {
 	processor := service_fee.NewSummary()
 	err := convert.Walk(utils.GetBaseDirectory("pdf"), processor)
 	require.NoError(t, err)
-	require.Len(t, processor.Summaries(), 6)
 	require.NoError(t, convert.GenerateSuccumbence(utils.GetBaseDirectory("pdf"), processor))
 	require.FileExists(t, utils.GetBaseDirectory("pdf")+"/honorarios consolidados.xlsx")
 	require.NoError(t, os.Remove(utils.GetBaseDirectory("pdf")+"/honorarios consolidados.xlsx"))

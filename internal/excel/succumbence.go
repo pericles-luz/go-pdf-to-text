@@ -338,11 +338,10 @@ func (s *Succumbence) ProcessFile() error {
 		hasSummary = true
 		s.currentLine++
 	}
-	if !hasSummary {
-		return nil
-	}
-	if err := s.writeTotal(s.CalculateTotal()); err != nil {
-		return err
+	if hasSummary {
+		if err := s.writeTotal(s.CalculateTotal()); err != nil {
+			return err
+		}
 	}
 	// if err := s.writeExistents(); err != nil {
 	// 	return err
