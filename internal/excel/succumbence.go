@@ -27,6 +27,7 @@ type Succumbence struct {
 	summaries   []*application_fee.Summary
 	existents   []*application_fee.Line
 	file        *excelize.File
+	mustHave    *application_fee.MustHaveList
 	currentLine int
 	countLines  int
 }
@@ -35,6 +36,7 @@ func NewSuccumbence(s []*application_fee.Summary, o string) *Succumbence {
 	result := &Succumbence{
 		summaries:  s,
 		outputPath: o,
+		mustHave:   application_fee.NewMustHaveList(),
 	}
 	result.existents = make([]*application_fee.Line, 0)
 	result.currentLine = 1
@@ -295,6 +297,13 @@ func (s *Succumbence) writeSummary(summary *application_fee.Summary) error {
 func (s *Succumbence) ProcessFile() error {
 	defer s.close()
 	hasSummary := false
+	err := s.mustHave.FromJSONFile(utils.GetBaseDirectory("assets") + "/mustHave.json")
+	if err != nil {
+		return err
+	}
+	for _, mustHave := range s.mustHave.List() {
+		mustHave.SetClassification(application_fee.MustHaveNotFound)
+	}
 	for _, summary := range s.summaries {
 		for _, line := range summary.Table() {
 			// log.Println("CPF:", line.CPF())
@@ -302,6 +311,8 @@ func (s *Succumbence) ProcessFile() error {
 				s.existents = append(s.existents, line)
 				line.SetUseble(false)
 				continue
+			} else {
+				s.mustHave.SetClassification(line.CPF(), application_fee.MustHaveFound)
 			}
 		}
 		if !summary.HasLines() {
@@ -319,6 +330,9 @@ func (s *Succumbence) ProcessFile() error {
 	if err := s.writeTotal(s.CalculateTotal()); err != nil {
 		return err
 	}
+	if err := s.writeOutOfList(); err != nil {
+		return err
+	}
 	hasSummary = false
 	s.sheetName = "Listagens Anteriores"
 	s.countLines = 0
@@ -327,6 +341,9 @@ func (s *Succumbence) ProcessFile() error {
 	for _, summary := range s.summaries {
 		for _, line := range summary.Table() {
 			line.SetUseble(!line.Useble())
+			if line.Useble() {
+				s.mustHave.SetClassification(line.CPF(), application_fee.MustHaveAlreadyPaid)
+			}
 		}
 		if !summary.HasLines() {
 			log.Println("summary sem linhas em listagens anteriores: ", summary.LocalExecutionNumber())
@@ -346,6 +363,9 @@ func (s *Succumbence) ProcessFile() error {
 	// if err := s.writeExistents(); err != nil {
 	// 	return err
 	// }
+	if err := s.writeMustHave(); err != nil {
+		return err
+	}
 	if err := s.write(s.outputPath); err != nil {
 		return err
 	}
@@ -468,4 +488,64 @@ func (s *Succumbence) CalculateTotal() *application_fee.TotalLine {
 		total.Add(summary.CalculateTotal())
 	}
 	return total
+}
+
+func (s *Succumbence) writeMustHave() error {
+	s.currentLine = 1
+	s.sheetName = "Lista Sucumbência"
+	s.getFile().NewSheet(s.sheetName)
+	s.getFile().SetColWidth(s.sheetName, "A", "A", 35)
+	s.getFile().SetCellStr(s.sheetName, s.cell("A", s.currentLine), "NOME")
+	s.getFile().SetColWidth(s.sheetName, "B", "B", 15)
+	s.getFile().SetCellStr(s.sheetName, s.cell("B", s.currentLine), "CPF")
+	s.getFile().SetColWidth(s.sheetName, "C", "C", 35)
+	s.getFile().SetCellStr(s.sheetName, s.cell("C", s.currentLine), "PROCESSO")
+	s.getFile().SetColWidth(s.sheetName, "D", "D", 15)
+	s.getFile().SetCellStr(s.sheetName, s.cell("D", s.currentLine), "EXECUÇÃO")
+	s.getFile().SetColWidth(s.sheetName, "E", "E", 15)
+	s.getFile().SetCellStr(s.sheetName, s.cell("E", s.currentLine), "SEQUÊNCIA")
+	s.getFile().SetColWidth(s.sheetName, "F", "F", 15)
+	s.getFile().SetCellStr(s.sheetName, s.cell("F", s.currentLine), "STATUS")
+	s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("F", s.currentLine), s.styleIDs[StyleTableHeader])
+	s.currentLine++
+	for _, mustHave := range s.mustHave.List() {
+		s.getFile().SetCellStr(s.sheetName, s.cell("A", s.currentLine), mustHave.Name)
+		s.getFile().SetCellStr(s.sheetName, s.cell("B", s.currentLine), mustHave.CPF)
+		s.getFile().SetCellStr(s.sheetName, s.cell("C", s.currentLine), mustHave.ProcessNumber)
+		s.getFile().SetCellInt(s.sheetName, s.cell("D", s.currentLine), int(mustHave.Execution))
+		s.getFile().SetCellInt(s.sheetName, s.cell("E", s.currentLine), int(mustHave.Sequence))
+		s.getFile().SetCellStr(s.sheetName, s.cell("F", s.currentLine), mustHave.Classification())
+		s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("F", s.currentLine), s.styleIDs[StyleTableLine])
+		s.currentLine++
+		fmt.Println(mustHave.CPF, mustHave.Classification())
+	}
+	return nil
+}
+
+func (s *Succumbence) writeOutOfList() error {
+	s.currentLine = 1
+	s.sheetName = "Lista Fora da Sucumbência"
+	s.getFile().NewSheet(s.sheetName)
+	s.getFile().SetColWidth(s.sheetName, "A", "A", 35)
+	s.getFile().SetCellStr(s.sheetName, s.cell("A", s.currentLine), "NOME")
+	s.getFile().SetColWidth(s.sheetName, "B", "B", 15)
+	s.getFile().SetCellStr(s.sheetName, s.cell("B", s.currentLine), "CPF")
+	s.getFile().SetColWidth(s.sheetName, "C", "C", 35)
+	s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("C", s.currentLine), s.styleIDs[StyleTableHeader])
+	s.currentLine++
+	for _, sumary := range s.summaries {
+		for _, line := range sumary.Table() {
+			if !line.Useble() {
+				continue
+			}
+			if s.mustHave.Has(line.CPF()) {
+				continue
+			}
+			s.getFile().SetCellStr(s.sheetName, s.cell("A", s.currentLine), line.Name())
+			s.getFile().SetCellStr(s.sheetName, s.cell("B", s.currentLine), line.CPF())
+			s.getFile().SetCellStyle(s.sheetName, s.cell("A", s.currentLine), s.cell("C", s.currentLine), s.styleIDs[StyleTableLine])
+			s.currentLine++
+		}
+	}
+	return nil
 }
