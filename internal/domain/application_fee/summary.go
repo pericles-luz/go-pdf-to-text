@@ -128,7 +128,16 @@ func (s *Summary) Parse(lines []string) error {
 
 func (s *Summary) IsFeesFile(lines []string) bool {
 	for _, line := range lines {
+		if strings.EqualFold(strings.ToLower(strings.TrimSpace(line)), strings.ToLower("Planilha Consolidada")) {
+			return true
+		}
 		if strings.Contains(strings.ToLower(line), strings.ToLower("Planilha Consolidada - Honor")) {
+			return true
+		}
+		if strings.Contains(strings.ToLower(line), strings.ToLower("Planilha Consolidada- Honor")) {
+			return true
+		}
+		if strings.Contains(strings.ToLower(line), strings.ToLower("SEQ.")) {
 			return true
 		}
 	}
